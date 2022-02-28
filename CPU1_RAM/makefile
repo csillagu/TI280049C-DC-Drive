@@ -12,6 +12,7 @@ GEN_CMDS__FLAG :=
 ORDERED_OBJS += \
 "./epwm_ex8_deadband.obj" \
 "./syscfg/board.obj" \
+"./adc/adc_board.obj" \
 "./device/device.obj" \
 "./device/f28004x_codestartbranch.obj" \
 "../28004x_generic_ram_lnk.cmd" \
@@ -27,8 +28,10 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
+-include adc/subdir_vars.mk
 -include device/subdir_vars.mk
 -include subdir_rules.mk
+-include adc/subdir_rules.mk
 -include device/subdir_rules.mk
 -include objects.mk
 
@@ -162,8 +165,8 @@ epwm_ex8_deadband.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "epwm_ex8_deadband.obj" "syscfg\board.obj" "device\device.obj" "device\f28004x_codestartbranch.obj" 
-	-$(RM) "epwm_ex8_deadband.d" "syscfg\board.d" "device\device.d" 
+	-$(RM) "epwm_ex8_deadband.obj" "syscfg\board.obj" "adc\adc_board.obj" "device\device.obj" "device\f28004x_codestartbranch.obj" 
+	-$(RM) "epwm_ex8_deadband.d" "syscfg\board.d" "adc\adc_board.d" "device\device.d" 
 	-$(RM) "device\f28004x_codestartbranch.d" 
 	-$(RMDIR) $(GEN_MISC_DIRS__QUOTED)
 	-@echo 'Finished clean'

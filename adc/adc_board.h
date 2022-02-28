@@ -23,7 +23,6 @@
 #define myEPWM4_BASE EPWM4_BASE
 #define myEPWM5_BASE EPWM5_BASE
 #define myEPWM6_BASE EPWM6_BASE
-#define myEPWM6_BASE6546545 EPWM6_BASE
 
 
 #define myADC0_BASE ADCA_BASE
@@ -37,11 +36,11 @@ extern __interrupt void adcA1ISR(void);
 
 
 
-void    ADC_init();
-void    ASYSCTL_init();
-void    INTERRUPT_init();
-void    Board_init();
-void    EPWM_init();
-void    PinMux_init();
+void    ADC_init2();
+void    ASYSCTL_init2();
+void    INTERRUPT_init2();
+void    Board_init2();
+void    EPWM_init2();
+void    PinMux_init2();
 
 #endif  // end of BOARD_H definition

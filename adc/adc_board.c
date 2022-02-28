@@ -7,20 +7,20 @@
 
 #include "adc_board.h"
 
-void Board_init()
+void Board_init2()
 {
     EALLOW;
 
-    PinMux_init();
-    EPWM_init();
-    ASYSCTL_init();
-    ADC_init();
-    INTERRUPT_init();
+    PinMux_init2();
+    EPWM_init2();
+    ASYSCTL_init2();
+    ADC_init2();
+    INTERRUPT_init2();
 
     EDIS;
 }
 
-void PinMux_init()
+void PinMux_init2()
 {
     //
     // EPWM1 -> myEPWM1 Pinmux
@@ -55,7 +55,7 @@ void PinMux_init()
 
 }
 
-void EPWM_init(){
+void EPWM_init2(){
     //myEPWM1 initialization
     //myEPWM2 initialization
     //myEPWM3 initialization
@@ -63,7 +63,7 @@ void EPWM_init(){
     //myEPWM5 initialization
     //myEPWM6 initialization
 }
-void ADC_init(){
+void ADC_init2(){
 
     ADC_setOffsetTrimAll(ADC_REFERENCE_INTERNAL,ADC_REFERENCE_3_3V); //3.3 internal volt ref
     ADC_setPrescaler(myADC0_BASE, ADC_CLK_DIV_2_0); // valami clockot osztunk 2vel
@@ -76,14 +76,20 @@ void ADC_init(){
     ADC_setupSOC(myADC0_BASE, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN0, 8U); //hozzakapcsoljuk az adc0base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
     ADC_setInterruptSOCTrigger(myADC0_BASE, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE); // az interrupt utan ne triggetelodjon mas
 
-    ADC_setInterruptSource(myADC0_BASE, ADC_INT_NUMBER1, ADC_SOC_NUMBER1); // ha a soc1 vegeter kuldje el az interrupt 1-et
-    ADC_enableInterrupt(myADC0_BASE, ADC_INT_NUMBER1); //engedelyezzuk
-    ADC_clearInterruptStatus(myADC0_BASE, ADC_INT_NUMBER1); //cleareljuk
-    ADC_disableContinuousMode(myADC0_BASE, ADC_INT_NUMBER1); // csak clear utan johet a kovetkezo interrupt
+    ADC_setupSOC(myADC0_BASE, ADC_SOC_NUMBER1, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN1, 8U);
+    ADC_setInterruptSOCTrigger(myADC0_BASE, ADC_SOC_NUMBER1, ADC_INT_SOC_TRIGGER_NONE);
+
+    ADC_setupSOC(myADC0_BASE, ADC_SOC_NUMBER2, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN2, 8U);
+    ADC_setInterruptSOCTrigger(myADC0_BASE, ADC_SOC_NUMBER2, ADC_INT_SOC_TRIGGER_NONE);
+
+    ADC_setInterruptSource(myADC0_BASE, ADC_INT_NUMBER1, ADC_SOC_NUMBER2);
+    ADC_enableInterrupt(myADC0_BASE, ADC_INT_NUMBER1);
+    ADC_clearInterruptStatus(myADC0_BASE, ADC_INT_NUMBER1);
+    ADC_disableContinuousMode(myADC0_BASE, ADC_INT_NUMBER1);
 
 }
 // jo kerdes
-void ASYSCTL_init(){
+void ASYSCTL_init2(){
     // asysctl initialization
     // Disables the temperature sensor output to the ADC.
     ASysCtl_disableTemperatureSensor();
@@ -92,7 +98,7 @@ void ASYSCTL_init(){
     // Set the internal analog voltage reference selection to 1.65V.
     ASysCtl_setAnalogReference1P65( ASYSCTL_VREFHIA | ASYSCTL_VREFHIB | ASYSCTL_VREFHIC );
 }
-void INTERRUPT_init(){
+void INTERRUPT_init2(){
 
     // Interrupt Setings for INT_myADC0_1
     Interrupt_register(INT_myADC0_1, &adcA1ISR); // az a fuggveny fogja interruptolni

@@ -75,7 +75,7 @@
 //
 #include "driverlib.h"
 #include "device.h"
-#include "board.h"
+#include "adc/adc_board.h"
 
 uint32_t EPWM_TIMER_TBPRD = 65000UL;
 uint32_t duty_cycle=50; //0...100
@@ -119,11 +119,9 @@ void main(void)
     //
     // Configure ePWMs
     //
-    Board_init();
+    Board_init2();
 
 
-
-    Interrupt_enable(INT_ADCA1);
 
 
     //
@@ -137,6 +135,14 @@ void main(void)
     //
     // Initialize ePWM1
     //
+    EPWM_disableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
+       //megmondjuk hogy ezt fogja triggerelni, meghozza mindig amikor valamekkora a dolog
+     EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_U_CMPA);
+     //elvileg egyszer mukodik emiatt, de nem merem baszogatni
+     EPWM_setADCTriggerEventPrescale(EPWM1_BASE, EPWM_SOC_A, 1);
+
+
+
     uint32_t base=myEPWM1_BASE;
 
        EPWM_setTimeBasePeriod(base, EPWM_TIMER_TBPRD); //up/down count
@@ -227,29 +233,13 @@ void main(void)
                                          EPWM_AQ_OUTPUT_B,
                                          EPWM_AQ_OUTPUT_LOW,
                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPB);
-       EPWM_disableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
-          //megmondjuk hogy ezt fogja triggerelni, meghozza mindig amikor 0 a dolog
-        EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_U_CMPA);
-        //elvileg egyszer mukodik emiatt, de nem merem baszogatni
-        EPWM_setADCTriggerEventPrescale(EPWM1_BASE, EPWM_SOC_A, 1);
-        DEVICE_DELAY_US(5000);
+
+        Interrupt_enable(INT_ADCA1);
+        EINT;
+        ERTM;
+
        EPWM_enableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
        SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC); // ráengedjük a clockot, ilyenkor kezd el működni
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -290,22 +280,16 @@ void main(void)
 */
 
     //
-    // Enable Global Interrupt (INTM) and real time interrupt (DBGM)
-    //
-   // EINT;
-   // ERTM;
-
-    //
     // IDLE loop. Just sit and loop forever (optional):
     //
     for(;;)
     {
         NOP;
        // DEVICE_DELAY_US(10000000);
-        if(duty_cycle!=duty_cycle_old){
+       /* if(duty_cycle!=duty_cycle_old){
             duty_cycle_old=duty_cycle;
             EPWM_setCounterCompareValue(base, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
-        }
+        }*/
      }
 }
 
@@ -319,7 +303,7 @@ __interrupt void adcA1ISR(void)
     //
     // Clear the interrupt flag
     //
-    //ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);// oke, lekezeltuk
+    ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);// oke, lekezeltuk
 
     //
     // Check if overflow has occurred
@@ -329,7 +313,7 @@ __interrupt void adcA1ISR(void)
         //nyilvan ide meg illene valamit tenni, de most csak leokezzuk
 
         ADC_clearInterruptOverflowStatus(ADCA_BASE, ADC_INT_NUMBER1);
-       // ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);
+        ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);
     }
 
     //

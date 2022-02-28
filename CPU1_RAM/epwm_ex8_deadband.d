@@ -94,7 +94,7 @@ epwm_ex8_deadband.obj: C:/ti/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/sp
 epwm_ex8_deadband.obj: C:/ti/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/inc/hw_spi.h
 epwm_ex8_deadband.obj: C:/ti/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/version.h
 epwm_ex8_deadband.obj: D:/Documents/BME/temalabor/mcu/epwm_ex8_deadband/device/device.h
-epwm_ex8_deadband.obj: syscfg/board.h
+epwm_ex8_deadband.obj: ../adc/adc_board.h
 
 ../epwm_ex8_deadband.c:
 
@@ -284,5 +284,5 @@ C:/ti/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/version.h:
 
 D:/Documents/BME/temalabor/mcu/epwm_ex8_deadband/device/device.h:
 
-syscfg/board.h:
+../adc/adc_board.h:
 
