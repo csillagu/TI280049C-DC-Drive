@@ -79,7 +79,7 @@
 
 uint32_t EPWM_TIMER_TBPRD = 65000UL;
 uint32_t duty_cycle=50; //0...100
-uint16_t adcResult=2;
+uint16_t adcResult=0;
 
 
 //
@@ -94,6 +94,7 @@ void setupEPWMOutputSwap(uint32_t base);
 
 void main(void)
 {
+    uint16_t EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
     uint32_t duty_cycle_old=duty_cycle;
     //
     // Initialize device clock and peripherals
@@ -286,10 +287,13 @@ void main(void)
     {
         NOP;
        // DEVICE_DELAY_US(10000000);
-       /* if(duty_cycle!=duty_cycle_old){
+        if(duty_cycle!=duty_cycle_old){
             duty_cycle_old=duty_cycle;
             EPWM_setCounterCompareValue(base, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
-        }*/
+        }
+        if(EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD)
+            EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
+            EPWM_setTimeBasePeriod(base, EPWM_TIMER_TBPRD);
      }
 }
 
