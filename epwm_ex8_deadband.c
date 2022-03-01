@@ -80,6 +80,7 @@
 uint32_t EPWM_TIMER_TBPRD = 65000UL;
 uint32_t duty_cycle=50; //0...100
 uint16_t adcResult=0;
+uint16_t
 
 
 //
@@ -184,19 +185,19 @@ void main(void)
                                          EPWM_AQ_OUTPUT_A,
                                          EPWM_AQ_OUTPUT_LOW,
                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
-       /*EPWM_setActionQualifierAction(base,
-                                         EPWM_AQ_OUTPUT_A,
-                                         EPWM_AQ_OUTPUT_HIGH,
-                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
        EPWM_setActionQualifierAction(base,
-                                         EPWM_AQ_OUTPUT_A,
-                                         EPWM_AQ_OUTPUT_LOW,
-                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);*/
+                                          EPWM_AQ_OUTPUT_B,
+                                          EPWM_AQ_OUTPUT_LOW,
+                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+       EPWM_setActionQualifierAction(base,
+                                          EPWM_AQ_OUTPUT_B,
+                                          EPWM_AQ_OUTPUT_HIGH,
+                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
 
 
-    /*   EPWM_setRisingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA); //tesztelni kell
+       EPWM_setRisingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
 
-       EPWM_setFallingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA); //?
+       EPWM_setFallingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA); // same
 
        EPWM_setFallingEdgeDelayCount(base, 200); // eddig szamol el, amig delayel valamit (?)
        EPWM_setRisingEdgeDelayCount(base, 400); // szintén ?
@@ -204,29 +205,24 @@ void main(void)
          //
          // INVERT the delayed outputs (AL)
          //
-         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_LOW); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
-         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
+         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
+         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_HIGH); //?
+
 
          //
          // Use the delayed signals instead of the original signals
          //
          EPWM_setDeadBandDelayMode(base, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
          EPWM_setDeadBandDelayMode(base, EPWM_DB_FED, true); //?
-*/
 
 
 
 
+         HWREGH(base + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
 
-       EPWM_setActionQualifierAction(base,
-                                         EPWM_AQ_OUTPUT_B,
-                                         EPWM_AQ_OUTPUT_LOW,
-                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
-       EPWM_setActionQualifierAction(base,
-                                         EPWM_AQ_OUTPUT_B,
-                                         EPWM_AQ_OUTPUT_HIGH,
-                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPB);
-       EPWM_setActionQualifierAction(base,
+
+
+       /*EPWM_setActionQualifierAction(base,
                                          EPWM_AQ_OUTPUT_B,
                                          EPWM_AQ_OUTPUT_NO_CHANGE,
                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
@@ -234,6 +230,14 @@ void main(void)
                                          EPWM_AQ_OUTPUT_B,
                                          EPWM_AQ_OUTPUT_LOW,
                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPB);
+       EPWM_setActionQualifierAction(base,
+                                                EPWM_AQ_OUTPUT_A,
+                                                EPWM_AQ_OUTPUT_HIGH,
+                                                EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
+              EPWM_setActionQualifierAction(base,
+                                                EPWM_AQ_OUTPUT_A,
+                                                EPWM_AQ_OUTPUT_LOW,
+                                                EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);*/
 
         Interrupt_enable(INT_ADCA1);
         EINT;
@@ -287,7 +291,7 @@ void main(void)
     {
         NOP;
        // DEVICE_DELAY_US(10000000);
-        if(duty_cycle!=duty_cycle_old){
+        if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
             duty_cycle_old=duty_cycle;
             EPWM_setCounterCompareValue(base, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
         }
@@ -302,8 +306,7 @@ __interrupt void adcA1ISR(void)
     //
     // Store results
     //
-    adcResult =66;
-    //= ADC_readResult(ADCARESULT_BASE, ADC_SOC_NUMBER0);
+    adcResult = ADC_readResult(ADCARESULT_BASE, ADC_SOC_NUMBER0);
     //
     // Clear the interrupt flag
     //
