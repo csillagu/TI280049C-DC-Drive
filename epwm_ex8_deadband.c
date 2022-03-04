@@ -77,10 +77,12 @@
 #include "device.h"
 #include "adc/adc_board.h"
 
-uint32_t EPWM_TIMER_TBPRD = 65000UL;
+uint32_t EPWM_TIMER_TBPRD = 2500UL;
 uint32_t duty_cycle=50; //0...100
 uint16_t adcResult=0;
-uint16_t
+uint16_t fed_set=200;
+uint16_t red_set=400;
+
 
 
 //
@@ -139,7 +141,7 @@ void main(void)
     //
     EPWM_disableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
        //megmondjuk hogy ezt fogja triggerelni, meghozza mindig amikor valamekkora a dolog
-     EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_U_CMPA);
+     EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_ZERO_OR_PERIOD);
      //elvileg egyszer mukodik emiatt, de nem merem baszogatni
      EPWM_setADCTriggerEventPrescale(EPWM1_BASE, EPWM_SOC_A, 1);
 
@@ -150,16 +152,16 @@ void main(void)
        EPWM_setTimeBasePeriod(base, EPWM_TIMER_TBPRD); //up/down count
        EPWM_setPhaseShift(base, 0U);  //?
        EPWM_setTimeBaseCounter(base, 0U);  // honnan indul?
-       EPWM_setTimeBaseCounterMode(base, EPWM_COUNTER_MODE_UP); // fel/le szamoljon
+       EPWM_setTimeBaseCounterMode(base, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
        EPWM_disablePhaseShiftLoad(base);
 
        //
        // Set ePWM clock pre-scaler
        //
        EPWM_setClockPrescaler(base,
-                              EPWM_CLOCK_DIVIDER_128,
-                              EPWM_HSCLOCK_DIVIDER_14); //128*14-gyel osztjuk le a sysclk/2-t
-       //27.901kHz-es TBCLK
+                              EPWM_CLOCK_DIVIDER_1,
+                              EPWM_HSCLOCK_DIVIDER_2); //1*2-gyel osztjuk le a sysclk/2-t
+       //50MHz-es TBCLK
 
        //
        // Set up shadowing
@@ -186,39 +188,43 @@ void main(void)
                                          EPWM_AQ_OUTPUT_LOW,
                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
        EPWM_setActionQualifierAction(base,
+                                                EPWM_AQ_OUTPUT_A,
+                                                EPWM_AQ_OUTPUT_HIGH,
+                                                EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+
+       /*EPWM_setActionQualifierAction(base,
                                           EPWM_AQ_OUTPUT_B,
                                           EPWM_AQ_OUTPUT_LOW,
                                           EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
        EPWM_setActionQualifierAction(base,
                                           EPWM_AQ_OUTPUT_B,
                                           EPWM_AQ_OUTPUT_HIGH,
-                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+                                          EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);*/
 
 
        EPWM_setRisingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
 
        EPWM_setFallingEdgeDeadBandDelayInput(base, EPWM_DB_INPUT_EPWMA); // same
 
-       EPWM_setFallingEdgeDelayCount(base, 200); // eddig szamol el, amig delayel valamit (?)
-       EPWM_setRisingEdgeDelayCount(base, 400); // szintén ?
-
-         //
-         // INVERT the delayed outputs (AL)
-         //
-         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
-         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_HIGH); //?
+       EPWM_setFallingEdgeDelayCount(base, fed_set); // eddig szamol el, amig delayeli a váltást
+       EPWM_setRisingEdgeDelayCount(base, red_set); // szintén csak felfutóélnéls
 
 
          //
          // Use the delayed signals instead of the original signals
          //
+
+         //
+         // Ez a 4 sor gyakorlatilag beállítja a megfelelő módot:  HWREGH(base + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
+         //
+         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
+         EPWM_setDeadBandDelayPolarity(base, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
+
+         EPWM_setDeadBandOutputSwapMode(base, EPWM_DB_OUTPUT_A, false);
+         EPWM_setDeadBandOutputSwapMode(base, EPWM_DB_OUTPUT_B, false);
+
          EPWM_setDeadBandDelayMode(base, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
          EPWM_setDeadBandDelayMode(base, EPWM_DB_FED, true); //?
-
-
-
-
-         HWREGH(base + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
 
 
 
