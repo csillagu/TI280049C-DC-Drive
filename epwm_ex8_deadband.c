@@ -124,8 +124,7 @@ void main(void)
     // Configure ePWMs
     //
     Board_init2();
-
-
+    float f=5.0/8.0*9.25;
 
 
     //
@@ -295,6 +294,7 @@ void main(void)
     //
     for(;;)
     {
+        f=f*1.00125;
         NOP;
        // DEVICE_DELAY_US(10000000);
         if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
@@ -324,7 +324,6 @@ __interrupt void adcA1ISR(void)
     if(true == ADC_getInterruptOverflowStatus(ADCA_BASE, ADC_INT_NUMBER1))
     {
         //nyilvan ide meg illene valamit tenni, de most csak leokezzuk
-
         ADC_clearInterruptOverflowStatus(ADCA_BASE, ADC_INT_NUMBER1);
         ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);
     }
