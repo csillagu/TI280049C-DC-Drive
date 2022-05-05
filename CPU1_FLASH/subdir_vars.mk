@@ -6,7 +6,7 @@ SHELL = cmd.exe
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CMD_SRCS += \
-../28004x_generic_ram_lnk.cmd 
+../28004x_generic_flash_lnk.cmd 
 
 SYSCFG_SRCS += \
 ../epwm_ex8_deadband.syscfg 

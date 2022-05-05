@@ -95,6 +95,7 @@ adc/adc_board.obj: C:/ti/c2000/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/
 adc/adc_board.obj: C:/ti/c2000/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/inc/hw_spi.h
 adc/adc_board.obj: C:/ti/c2000/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/version.h
 adc/adc_board.obj: D:/Documents/BME/temalabor/mcu/epwm_ex8_deadband/device/device.h
+adc/adc_board.obj: D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/include/stddef.h
 
 ../adc/adc_board.c:
 
@@ -285,4 +286,6 @@ C:/ti/c2000/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/inc/hw_spi.h:
 C:/ti/c2000/C2000Ware_4_00_00_00/driverlib/f28004x/driverlib/version.h:
 
 D:/Documents/BME/temalabor/mcu/epwm_ex8_deadband/device/device.h:
+
+D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/include/stddef.h:
 

@@ -75,13 +75,13 @@ void ADC_init2(){
    ADC_disableBurstMode(ADC_VOLTAGE);
    ADC_setSOCPriority(ADC_VOLTAGE, ADC_PRI_ALL_ROUND_ROBIN);
 
-   ADC_setupSOC(ADC_VOLTAGE, ADC_SOC_NUMBER1, ADC_TRIGGER_SW_ONLY, ADC_CH_ADCIN6, 8U); //??????? tesztelni kell hogy jo e
+   ADC_setupSOC(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN6, 8U); //??????? tesztelni kell hogy jo e
 
-   ADC_setInterruptSOCTrigger(ADC_VOLTAGE, ADC_SOC_NUMBER1, ADC_INT_SOC_TRIGGER_ADCINT1); // az adcint1 utan triggerelodjon ez a cucc
-   ADC_setInterruptSource(ADC_VOLTAGE, ADC_INT_NUMBER2, ADC_SOC_NUMBER1);
-   ADC_enableInterrupt(ADC_VOLTAGE, ADC_INT_NUMBER2);
-   ADC_clearInterruptStatus(ADC_VOLTAGE, ADC_INT_NUMBER2);
-   ADC_disableContinuousMode(ADC_VOLTAGE, ADC_INT_NUMBER2);
+   ADC_setInterruptSOCTrigger(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE); // az adcint1 utan triggerelodjon ez a cucc
+   ADC_setInterruptSource(ADC_VOLTAGE, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);
+   ADC_enableInterrupt(ADC_VOLTAGE, ADC_INT_NUMBER1);
+   ADC_clearInterruptStatus(ADC_VOLTAGE, ADC_INT_NUMBER1);
+   ADC_disableContinuousMode(ADC_VOLTAGE, ADC_INT_NUMBER1);
 
    // referencia
   ADC_setPrescaler(ADC_REF, ADC_CLK_DIV_2_0);
@@ -92,13 +92,13 @@ void ADC_init2(){
   ADC_disableBurstMode(ADC_REF);
   ADC_setSOCPriority(ADC_REF, ADC_PRI_ALL_ROUND_ROBIN);
 
-  ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER2, ADC_TRIGGER_SW_ONLY, ADC_CH_ADCIN14, 8U); //??????? tesztelni kell hogy jo e
+  ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN14, 8U); //??????? tesztelni kell hogy jo e
 
-  ADC_setInterruptSOCTrigger(ADC_REF, ADC_SOC_NUMBER2, ADC_INT_SOC_TRIGGER_NONE); // az adcint1 utan triggerelodjon ez a cucc
-  ADC_setInterruptSource(ADC_REF, ADC_INT_NUMBER3, ADC_SOC_NUMBER2);
-  ADC_enableInterrupt(ADC_REF, ADC_INT_NUMBER3);
-  ADC_clearInterruptStatus(ADC_REF, ADC_INT_NUMBER3);
-  ADC_disableContinuousMode(ADC_REF, ADC_INT_NUMBER3); //intek helyett, a legvegen kene egy darb nagy int
+  ADC_setInterruptSOCTrigger(ADC_REF, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE);
+  ADC_setInterruptSource(ADC_REF, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);
+  ADC_enableInterrupt(ADC_REF, ADC_INT_NUMBER1);
+  ADC_clearInterruptStatus(ADC_REF, ADC_INT_NUMBER1);
+  ADC_disableContinuousMode(ADC_REF, ADC_INT_NUMBER1); //intek helyett, a legvegen kene egy darb nagy int
 
 
 
@@ -116,8 +116,15 @@ void ASYSCTL_init2(){
 void INTERRUPT_init2(){
 
     // Interrupt Setings for INT_ADC_CURR_1
-    Interrupt_register(INT_ADC_CURR_1, &adcA1ISR); // az a fuggveny fogja interruptolni
+    Interrupt_register(INT_ADC_CURR_1, &adcCurrent); // az a fuggveny fogja interruptolni
     Interrupt_enable(INT_ADC_CURR_1);
+
+    // voltage
+    Interrupt_register(INT_ADC_VOLTAGE_1, &adcVoltage); // az a fuggveny fogja interruptolni
+        Interrupt_enable(INT_ADC_VOLTAGE_1);
+    Interrupt_register(INT_ADC_REF_1, &adcRef); // az a fuggveny fogja interruptolni
+            Interrupt_enable(INT_ADC_REF_1);
+
 }
 
 
