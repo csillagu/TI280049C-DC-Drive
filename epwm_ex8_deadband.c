@@ -77,11 +77,17 @@
 #include "device.h"
 #include "adc/adc_board.h"
 
+typedef enum{
+    DRIVE_TYPE_UNIPOLAR_PLUS,
+    DRIVE_TYPE_UNIPOLAR_MINUS,
+    DRIVE_TYPE_BIPOLAR
+}DRIVE_TYPE;
+
 uint32_t EPWM_TIMER_TBPRD = 2500UL;
 uint32_t duty_cycle=50; //0...100
 uint16_t adcResult=0;
-uint16_t fed_set=35;
-uint16_t red_set=35;
+uint16_t fed_set=110;
+uint16_t red_set=110;
 
 uint16_t c_meas=0;
 uint16_t c_read=0;
@@ -92,7 +98,8 @@ uint16_t v_meas=0;
 uint16_t v_read=1;
 uint16_t v_overflow=0;
 float32_t voltage=0;
-
+uint16_t v_avg[5]={0};
+uint16_t v_count=0;
 
 uint16_t r_meas=0;
 uint16_t r_read=0;
@@ -101,6 +108,8 @@ float32_t ref=0.0;
 
 
 
+
+DRIVE_TYPE drive=DRIVE_TYPE_UNIPOLAR_PLUS;
 //
 // Function Prototypes
 //
@@ -226,7 +235,7 @@ void main(void)
 
     EPWM_setTimeBasePeriod(myEPWM4_BASE, EPWM_TIMER_TBPRD); //up/down count
     EPWM_setPhaseShift(myEPWM4_BASE, 0U);  //?
-                EPWM_setTimeBaseCounter(myEPWM4_BASE, 0U);  // honnan indul?
+                EPWM_setTimeBaseCounter(myEPWM4_BASE, EPWM_TIMER_TBPRD);  // honnan indul?
                 EPWM_setTimeBaseCounterMode(myEPWM4_BASE, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
                 EPWM_disablePhaseShiftLoad(myEPWM4_BASE);
 
@@ -248,7 +257,7 @@ void main(void)
                 //
                 // Set-up compare
                 //
-                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
+                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, EPWM_TIMER_TBPRD); //beállíthatunk két comparet, meg kell nezni hogy megy
 
                 //
                 // Set actions
@@ -341,9 +350,21 @@ void main(void)
        // DEVICE_DELAY_US(10000000);
         if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
             duty_cycle_old=duty_cycle;
-            EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
-            EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
+            switch(drive){
+            case DRIVE_TYPE_UNIPOLAR_PLUS:
+                EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
+                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, EPWM_TIMER_TBPRD);//--------->>> 0 lesz a kimeno fesz ott
+                break;
+            case DRIVE_TYPE_UNIPOLAR_MINUS:
+                EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, EPWM_TIMER_TBPRD); //beállíthatunk két comparet, meg kell nezni hogy megy
+                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
+                break;
+            case DRIVE_TYPE_BIPOLAR:
+                EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
+                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
 
+                break;
+            }
         }
         if(EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
             EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
@@ -355,7 +376,7 @@ void main(void)
             r_read=0;
             current=c_meas*1.0/4096*130.4348-ref/0.0253;
             v_read=0;
-            voltage=v_meas/4096.0*3.3;
+            //voltage=((v_avg[0]+v_avg[1]+v_avg[2]+v_avg[3]+v_avg[4])*1.0*3.3-ref)/40.960;
             //itt minden megvan, mehet a beavatkozojel szamolas
 
         }
@@ -368,7 +389,10 @@ __interrupt void adcVoltage(void){
     // Store results
     //
     v_meas=ADC_readResult(ADC_VOLTAGE_RESULT, ADC_SOC_NUMBER0);
-    voltage= v_meas/4096.0*3.3;
+    v_avg[(v_count+1)%5]=v_meas;
+    v_count++;
+
+    voltage= (v_avg[0]+v_avg[1]+v_avg[2]+v_avg[3]+v_avg[4])*1.0/6206.06061; // test for identification
     v_read=1;
 
     ADC_clearInterruptStatus(ADC_VOLTAGE, ADC_INT_NUMBER1);// oke, lekezeltuk
