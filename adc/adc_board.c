@@ -58,7 +58,7 @@ void ADC_init2(){
 
     ADC_disableBurstMode(ADC_CURRENT); //?
     ADC_setSOCPriority(ADC_CURRENT, ADC_PRI_ALL_ROUND_ROBIN); // ha tob soc akarja hasznalni az adcA-t, akkor melyikkel kezdjuk
-    ADC_setupSOC(ADC_CURRENT, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN5, 8U); //hozzakapcsoljuk az adc6base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
+    ADC_setupSOC(ADC_CURRENT, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN5, 50U); //hozzakapcsoljuk az adc6base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
     ADC_setInterruptSOCTrigger(ADC_CURRENT, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE); // az interrupt utan ne triggetelodjon mas
 
     ADC_setInterruptSource(ADC_CURRENT, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);
@@ -75,7 +75,7 @@ void ADC_init2(){
    ADC_disableBurstMode(ADC_VOLTAGE);
    ADC_setSOCPriority(ADC_VOLTAGE, ADC_PRI_ALL_ROUND_ROBIN);
 
-   ADC_setupSOC(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN0, 8U); //??????? tesztelni kell hogy jo e
+   ADC_setupSOC(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN0, 50U); //??????? tesztelni kell hogy jo e
 
    ADC_setInterruptSOCTrigger(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE); // az adcint1 utan triggerelodjon ez a cucc
    ADC_setInterruptSource(ADC_VOLTAGE, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);
@@ -92,7 +92,7 @@ void ADC_init2(){
   ADC_disableBurstMode(ADC_REF);
   ADC_setSOCPriority(ADC_REF, ADC_PRI_ALL_ROUND_ROBIN);
 
-  ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN2, 8U); //??????? tesztelni kell hogy jo e
+  ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN2, 50U); //??????? tesztelni kell hogy jo e
 
   ADC_setInterruptSOCTrigger(ADC_REF, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE);
   ADC_setInterruptSource(ADC_REF, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);

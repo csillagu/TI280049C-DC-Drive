@@ -126,7 +126,7 @@ __interrupt void adcVoltage(void);
 void main(void)
 {
     uint16_t EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
-    uint32_t duty_cycle_old=duty_cycle;
+    uint32_t duty_cycle_old=40;
     //
     // Initialize device clock and peripherals
     //
@@ -164,134 +164,135 @@ void main(void)
     //
     // Initialize ePWM1
     //
-       EPWM_disableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
-        //megmondjuk hogy ezt fogja triggerelni, meghozza mindig amikor valamekkora a dolog
-       EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_ZERO_OR_PERIOD);
-        //elvileg egyszer mukodik emiatt, de nem merem baszogatni
-       EPWM_setADCTriggerEventPrescale(EPWM1_BASE, EPWM_SOC_A, 1);
+   EPWM_disableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
+    //megmondjuk hogy ezt fogja triggerelni, meghozza mindig amikor valamekkora a dolog
+   EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_ZERO_OR_PERIOD);
+    //elvileg egyszer mukodik emiatt, de nem merem baszogatni
+   EPWM_setADCTriggerEventPrescale(EPWM1_BASE, EPWM_SOC_A, 1);
 
 
 
-       EPWM_setTimeBasePeriod(myEPWM1_BASE, EPWM_TIMER_TBPRD); //up/down count
-       EPWM_setPhaseShift(myEPWM1_BASE, 0U);  //?
-       EPWM_setTimeBaseCounter(myEPWM1_BASE, 0U);  // honnan indul?
-       EPWM_setTimeBaseCounterMode(myEPWM1_BASE, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
-       EPWM_disablePhaseShiftLoad(myEPWM1_BASE);
+   EPWM_setTimeBasePeriod(myEPWM1_BASE, EPWM_TIMER_TBPRD); //up/down count
+   EPWM_setPhaseShift(myEPWM1_BASE, 0U);  //?
+   EPWM_setTimeBaseCounter(myEPWM1_BASE, 0U);  // honnan indul?
+   EPWM_setTimeBaseCounterMode(myEPWM1_BASE, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
+   EPWM_disablePhaseShiftLoad(myEPWM1_BASE);
 
-       //
-       // Set ePWM clock pre-scaler
-       //
-       EPWM_setClockPrescaler(myEPWM1_BASE,
-                              EPWM_CLOCK_DIVIDER_1,
-                              EPWM_HSCLOCK_DIVIDER_2); //1*2-gyel osztjuk le a sysclk/2-t
-       //50MHz-es TBCLK
+   //
+   // Set ePWM clock pre-scaler
+   //
+   EPWM_setClockPrescaler(myEPWM1_BASE,
+                          EPWM_CLOCK_DIVIDER_1,
+                          EPWM_HSCLOCK_DIVIDER_2); //1*2-gyel osztjuk le a sysclk/2-t
+   //50MHz-es TBCLK
 
-       //
-       // Set up shadowing
-       //
-       EPWM_setCounterCompareShadowLoadMode(myEPWM1_BASE,
-                                            EPWM_COUNTER_COMPARE_A,
-                                            EPWM_COMP_LOAD_ON_CNTR_ZERO); //ha 0, akkor toltse bele a shadow registerből az értéket
+   //
+   // Set up shadowing
+   //
+   EPWM_setCounterCompareShadowLoadMode(myEPWM1_BASE,
+                                        EPWM_COUNTER_COMPARE_A,
+                                        EPWM_COMP_LOAD_ON_CNTR_ZERO); //ha 0, akkor toltse bele a shadow registerből az értéket
 
-       //
-       // Set-up compare
-       //
-       EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
+   //
+   // Set-up compare
+   //
+   EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
 
-       //
-       // Set actions
-       //
-       EPWM_setActionQualifierAction(myEPWM1_BASE, // mi tortenjen amikor a kulonbozo compare eventek bekovetkeznek
-                                         EPWM_AQ_OUTPUT_A,
-                                         EPWM_AQ_OUTPUT_HIGH,
-                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
-       EPWM_setActionQualifierAction(myEPWM1_BASE,
-                                         EPWM_AQ_OUTPUT_A,
-                                         EPWM_AQ_OUTPUT_LOW,
-                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
-       EPWM_setActionQualifierAction(myEPWM1_BASE,
-                                                EPWM_AQ_OUTPUT_A,
-                                                EPWM_AQ_OUTPUT_HIGH,
-                                                EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+   //
+   // Set actions
+   //
+   EPWM_setActionQualifierAction(myEPWM1_BASE, // mi tortenjen amikor a kulonbozo compare eventek bekovetkeznek
+                                     EPWM_AQ_OUTPUT_A,
+                                     EPWM_AQ_OUTPUT_HIGH,
+                                     EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+   EPWM_setActionQualifierAction(myEPWM1_BASE,
+                                     EPWM_AQ_OUTPUT_A,
+                                     EPWM_AQ_OUTPUT_LOW,
+                                     EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+   EPWM_setActionQualifierAction(myEPWM1_BASE,
+                                            EPWM_AQ_OUTPUT_A,
+                                            EPWM_AQ_OUTPUT_HIGH,
+                                            EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
 
-       EPWM_setRisingEdgeDeadBandDelayInput(myEPWM1_BASE, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
+   EPWM_setRisingEdgeDeadBandDelayInput(myEPWM1_BASE, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
 
-       EPWM_setFallingEdgeDeadBandDelayInput(myEPWM1_BASE, EPWM_DB_INPUT_EPWMA); // same
+   EPWM_setFallingEdgeDeadBandDelayInput(myEPWM1_BASE, EPWM_DB_INPUT_EPWMA); // same
 
-       EPWM_setFallingEdgeDelayCount(myEPWM1_BASE, fed_set); // eddig szamol el, amig delayeli a váltást
-       EPWM_setRisingEdgeDelayCount(myEPWM1_BASE, red_set); // szintén csak felfutóélnéls
-         //
-         // Ez a 4 sor gyakorlatilag beállítja a megfelelő módot:  HWREGH(myEPWM1_BASE + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
-         //
-         EPWM_setDeadBandDelayPolarity(myEPWM1_BASE, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
-         EPWM_setDeadBandDelayPolarity(myEPWM1_BASE, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
+   EPWM_setFallingEdgeDelayCount(myEPWM1_BASE, fed_set); // eddig szamol el, amig delayeli a váltást
+   EPWM_setRisingEdgeDelayCount(myEPWM1_BASE, red_set); // szintén csak felfutóélnéls
+    //
+    // Ez a 4 sor gyakorlatilag beállítja a megfelelő módot:  HWREGH(myEPWM1_BASE + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
+    //
+    EPWM_setDeadBandDelayPolarity(myEPWM1_BASE, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
+    EPWM_setDeadBandDelayPolarity(myEPWM1_BASE, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
 
-         EPWM_setDeadBandOutputSwapMode(myEPWM1_BASE, EPWM_DB_OUTPUT_A, false);
-         EPWM_setDeadBandOutputSwapMode(myEPWM1_BASE, EPWM_DB_OUTPUT_B, false);
+    EPWM_setDeadBandOutputSwapMode(myEPWM1_BASE, EPWM_DB_OUTPUT_A, false);
+    EPWM_setDeadBandOutputSwapMode(myEPWM1_BASE, EPWM_DB_OUTPUT_B, false);
 
-         EPWM_setDeadBandDelayMode(myEPWM1_BASE, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
-         EPWM_setDeadBandDelayMode(myEPWM1_BASE, EPWM_DB_FED, true); //?
-//// EPWM2
+    EPWM_setDeadBandDelayMode(myEPWM1_BASE, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
+    EPWM_setDeadBandDelayMode(myEPWM1_BASE, EPWM_DB_FED, true); //?
+    //// EPWM2
 
     EPWM_setTimeBasePeriod(myEPWM4_BASE, EPWM_TIMER_TBPRD); //up/down count
     EPWM_setPhaseShift(myEPWM4_BASE, 0U);  //?
-                EPWM_setTimeBaseCounter(myEPWM4_BASE, EPWM_TIMER_TBPRD);  // honnan indul?
-                EPWM_setTimeBaseCounterMode(myEPWM4_BASE, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
-                EPWM_disablePhaseShiftLoad(myEPWM4_BASE);
+    EPWM_setTimeBaseCounter(myEPWM4_BASE, EPWM_TIMER_TBPRD);  // honnan indul?
+    EPWM_setTimeBaseCounterMode(myEPWM4_BASE, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
+    EPWM_disablePhaseShiftLoad(myEPWM4_BASE);
 
-                //
-                // Set ePWM clock pre-scaler
-                //
-                EPWM_setClockPrescaler(myEPWM4_BASE,
-                                       EPWM_CLOCK_DIVIDER_1,
-                                       EPWM_HSCLOCK_DIVIDER_2); //1*2-gyel osztjuk le a sysclk/2-t
-                //50MHz-es TBCLK
+    //
+    // Set ePWM clock pre-scaler
+    //
+    EPWM_setClockPrescaler(myEPWM4_BASE,
+                           EPWM_CLOCK_DIVIDER_1,
+                           EPWM_HSCLOCK_DIVIDER_2); //1*2-gyel osztjuk le a sysclk/2-t
+    //50MHz-es TBCLK
 
-                //
-                // Set up shadowing
-                //
-                EPWM_setCounterCompareShadowLoadMode(myEPWM4_BASE,
-                                                     EPWM_COUNTER_COMPARE_A,
-                                                     EPWM_COMP_LOAD_ON_CNTR_ZERO); //ha 0, akkor toltse bele a shadow registerből az értéket
+    //
+    // Set up shadowing
+    //
+    EPWM_setCounterCompareShadowLoadMode(myEPWM4_BASE,
+                                         EPWM_COUNTER_COMPARE_A,
+                                         EPWM_COMP_LOAD_ON_CNTR_ZERO); //ha 0, akkor toltse bele a shadow registerből az értéket
 
-                //
-                // Set-up compare
-                //
-                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, EPWM_TIMER_TBPRD); //beállíthatunk két comparet, meg kell nezni hogy megy
+    //
+    // Set-up compare
+    //
+    EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, EPWM_TIMER_TBPRD); //beállíthatunk két comparet, meg kell nezni hogy megy
 
-                //
-                // Set actions
-                //
-                EPWM_setActionQualifierAction(myEPWM4_BASE, // mi tortenjen amikor a kulonbozo compare eventek bekovetkeznek
-                                                  EPWM_AQ_OUTPUT_A,
-                                                  EPWM_AQ_OUTPUT_LOW,
-                                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
-                EPWM_setActionQualifierAction(myEPWM4_BASE,
-                                                  EPWM_AQ_OUTPUT_A,
-                                                  EPWM_AQ_OUTPUT_HIGH,
-                                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
-                EPWM_setActionQualifierAction(myEPWM4_BASE,
-                                                         EPWM_AQ_OUTPUT_A,
-                                                         EPWM_AQ_OUTPUT_LOW,
-                                                         EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+    //
+    // Set actions
+    //
+    // mi tortenjen amikor a kulonbozo compare eventek bekovetkeznek
+    EPWM_setActionQualifierAction(myEPWM4_BASE,
+                                      EPWM_AQ_OUTPUT_A,
+                                      EPWM_AQ_OUTPUT_LOW,
+                                      EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+    EPWM_setActionQualifierAction(myEPWM4_BASE,
+                                      EPWM_AQ_OUTPUT_A,
+                                      EPWM_AQ_OUTPUT_HIGH,
+                                      EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+    EPWM_setActionQualifierAction(myEPWM4_BASE,
+                                             EPWM_AQ_OUTPUT_A,
+                                             EPWM_AQ_OUTPUT_LOW,
+                                             EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
 
-                EPWM_setRisingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
+    EPWM_setRisingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
 
-                EPWM_setFallingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMA); // same
+    EPWM_setFallingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMA); // same
 
-                EPWM_setFallingEdgeDelayCount(myEPWM4_BASE, fed_set); // eddig szamol el, amig delayeli a váltást
-                EPWM_setRisingEdgeDelayCount(myEPWM4_BASE, red_set); // szintén csak felfutóélnéls
-                  //
-                  // Ez a 4 sor gyakorlatilag beállítja a megfelelő módot:  HWREGH(myEPWM1_BASE + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
-                  //
-                  EPWM_setDeadBandDelayPolarity(myEPWM4_BASE, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
-                  EPWM_setDeadBandDelayPolarity(myEPWM4_BASE, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
+    EPWM_setFallingEdgeDelayCount(myEPWM4_BASE, fed_set); // eddig szamol el, amig delayeli a váltást
+    EPWM_setRisingEdgeDelayCount(myEPWM4_BASE, red_set); // szintén csak felfutóélnéls
+      //
+      // Ez a 4 sor gyakorlatilag beállítja a megfelelő módot:  HWREGH(myEPWM1_BASE + EPWM_O_DBCTL) =0x000B; // beallitja a modot a megfelelore lsd spuri/1812.o teteje
+      //
+      EPWM_setDeadBandDelayPolarity(myEPWM4_BASE, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
+      EPWM_setDeadBandDelayPolarity(myEPWM4_BASE, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
 
-                  EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_A, false);
-                  EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_B, false);
+      EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_A, false);
+      EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_B, false);
 
-                  EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
-                  EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_FED, true); //?
+      EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
+      EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_FED, true); //?
 
 
         Interrupt_enable(INT_ADCA1);
@@ -344,6 +345,8 @@ void main(void)
     //
     // IDLE loop. Just sit and loop forever (optional):
     //
+       /// EPWM1: H1 L1
+       /// EPWM4:H4 L4
     for(;;)
     {
         NOP;
@@ -361,7 +364,7 @@ void main(void)
                 break;
             case DRIVE_TYPE_BIPOLAR:
                 EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
-                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
+                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, (100-duty_cycle)*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
 
                 break;
             }
@@ -374,7 +377,9 @@ void main(void)
         if(c_read==1&&r_read==1&&v_read==1){
             c_read=0;
             r_read=0;
-            current=c_meas*1.0/4096*130.4348-ref/0.0253;
+
+            current=((int16_t)c_meas-(int16_t)r_meas)*0.0322266+0.1;//magic constant
+            //current=c_meas*1.0/4096*130.4348-ref/0.0253;
             v_read=0;
             //voltage=((v_avg[0]+v_avg[1]+v_avg[2]+v_avg[3]+v_avg[4])*1.0*3.3-ref)/40.960;
             //itt minden megvan, mehet a beavatkozojel szamolas
