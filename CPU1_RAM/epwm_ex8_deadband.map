@@ -1,7 +1,7 @@
 ******************************************************************************
              TMS320C2000 Linker PC v21.6.0                     
 ******************************************************************************
->> Linked Mon Sep 26 13:55:55 2022
+>> Linked Fri Sep 30 19:13:30 2022
 
 OUTPUT FILE NAME:   <epwm_ex8_deadband.out>
 ENTRY POINT SYMBOL: "code_start"  address: 00000000
@@ -16,7 +16,7 @@ PAGE 0:
   RAMM0                 000000f6   0000030a  0000007d  0000028d  RWIX
   RAMLS0                00008000   00000800  00000800  00000000  RWIX
   RAMLS1                00008800   00000800  00000800  00000000  RWIX
-  RAMLS2                00009000   00000800  000000e0  00000720  RWIX
+  RAMLS2                00009000   00000800  000000e3  0000071d  RWIX
   RAMLS3                00009800   00000800  00000000  00000800  RWIX
   RAMLS4                0000a000   00000800  00000000  00000800  RWIX
   FLASH_BANK0_SEC0      00080000   00001000  00000000  00001000  RWIX
@@ -112,10 +112,11 @@ codestart
                   0000a9fa    00000002                       : _lock.c.obj (.ebss:__unlock)
 
 .text.1    0    00008000    00000800     
-                  00008000    00000492     epwm_ex8_deadband.obj (.text)
-                  00008492    00000236     adc_board.obj (.text)
-                  000086c8    00000122     epwm_ex8_deadband.obj (.text:retain)
-                  000087ea    00000016     driverlib_coff.lib : sysctl.obj (.text:_DCC_clearDoneFlag)
+                  00008000    000003dc     epwm_ex8_deadband.obj (.text)
+                  000083dc    000002ef     adc_board.obj (.text)
+                  000086cb    00000122     epwm_ex8_deadband.obj (.text:retain)
+                  000087ed    00000012     rts2800_fpu32.lib : args_main.c.obj (.text)
+                  000087ff    00000001                       : startup.c.obj (.text)
 
 .text.2    0    00008800    00000800     
                   00008800    00000189     device.obj (.text)
@@ -145,42 +146,41 @@ codestart
                   00008f9e    00000017                        : sysctl.obj (.text:_DCC_disableDoneSignal)
                   00008fb5    00000017                        : sysctl.obj (.text:_DCC_enableDoneSignal)
                   00008fcc    00000017                        : sysctl.obj (.text:_SysCtl_enablePeripheral)
-                  00008fe3    00000016                        : sysctl.obj (.text:_DCC_clearErrorFlag)
+                  00008fe3    00000016                        : sysctl.obj (.text:_DCC_clearDoneFlag)
                   00008ff9    00000007                        : sysctl.obj (.text:_SysCtl_resetMCD)
 
-.text.3    0    00009000    000000e0     
-                  00009000    00000016     driverlib_coff.lib : sysctl.obj (.text:_DCC_disableErrorSignal)
-                  00009016    00000016                        : sysctl.obj (.text:_DCC_enableErrorSignal)
-                  0000902c    00000014                        : sysctl.obj (.text:_DCC_disableModule)
-                  00009040    00000014                        : sysctl.obj (.text:_DCC_enableModule)
-                  00009054    00000014                        : gpio.obj (.text:_GPIO_isPinValid)
-                  00009068    00000012     rts2800_fpu32.lib : args_main.c.obj (.text)
-                  0000907a    00000010     driverlib_coff.lib : sysctl.obj (.text:_DCC_isBaseValid)
-                  0000908a    0000000e                        : interrupt.obj (.text:_Interrupt_defaultHandler)
-                  00009098    0000000d                        : interrupt.obj (.text:_Interrupt_disableMaster)
-                  000090a5    0000000d                        : interrupt.obj (.text:_Interrupt_enableMaster)
-                  000090b2    0000000b                        : sysctl.obj (.text:_SysCtl_isMCDClockFailureDetected)
-                  000090bd    0000000b     rts2800_fpu32.lib : u_div28.asm.obj (.text)
-                  000090c8    00000009                       : _lock.c.obj (.text)
-                  000090d1    00000008     f28004x_codestartbranch.obj (.text)
-                  000090d9    00000002     driverlib_coff.lib : interrupt.obj (.text:_Interrupt_illegalOperationHandler)
-                  000090db    00000002                        : interrupt.obj (.text:_Interrupt_nmiHandler)
-                  000090dd    00000002     rts2800_fpu32.lib : pre_init.c.obj (.text)
-                  000090df    00000001                       : startup.c.obj (.text)
+.text.3    0    00009000    000000e3     
+                  00009000    00000016     driverlib_coff.lib : sysctl.obj (.text:_DCC_clearErrorFlag)
+                  00009016    00000016                        : sysctl.obj (.text:_DCC_disableErrorSignal)
+                  0000902c    00000016                        : sysctl.obj (.text:_DCC_enableErrorSignal)
+                  00009042    00000014                        : sysctl.obj (.text:_DCC_disableModule)
+                  00009056    00000014                        : sysctl.obj (.text:_DCC_enableModule)
+                  0000906a    00000014                        : gpio.obj (.text:_GPIO_isPinValid)
+                  0000907e    00000010                        : sysctl.obj (.text:_DCC_isBaseValid)
+                  0000908e    0000000e                        : interrupt.obj (.text:_Interrupt_defaultHandler)
+                  0000909c    0000000d                        : interrupt.obj (.text:_Interrupt_disableMaster)
+                  000090a9    0000000d                        : interrupt.obj (.text:_Interrupt_enableMaster)
+                  000090b6    0000000b                        : sysctl.obj (.text:_SysCtl_isMCDClockFailureDetected)
+                  000090c1    0000000b     rts2800_fpu32.lib : u_div28.asm.obj (.text)
+                  000090cc    00000009                       : _lock.c.obj (.text)
+                  000090d5    00000008     f28004x_codestartbranch.obj (.text)
+                  000090dd    00000002     driverlib_coff.lib : interrupt.obj (.text:_Interrupt_illegalOperationHandler)
+                  000090df    00000002                        : interrupt.obj (.text:_Interrupt_nmiHandler)
+                  000090e1    00000002     rts2800_fpu32.lib : pre_init.c.obj (.text)
 
 MODULE SUMMARY
 
        Module                        code   initialized data   uninitialized data
        ------                        ----   ----------------   ------------------
     .\
-       epwm_ex8_deadband.obj         1460   85                 29                
+       epwm_ex8_deadband.obj         1278   85                 29                
     +--+-----------------------------+------+------------------+--------------------+
-       Total:                        1460   85                 29                
+       Total:                        1278   85                 29                
                                                                                  
     .\adc\
-       adc_board.obj                 566    0                  0                 
+       adc_board.obj                 751    0                  0                 
     +--+-----------------------------+------+------------------+--------------------+
-       Total:                        566    0                  0                 
+       Total:                        751    0                  0                 
                                                                                  
     .\device\
        device.obj                    393    10                 4                 
@@ -212,7 +212,7 @@ MODULE SUMMARY
                                                                                  
        Stack:                        0      0                  1016              
     +--+-----------------------------+------+------------------+--------------------+
-       Grand Total:                  4326   581                1059              
+       Grand Total:                  4329   581                1059              
 
 
 GLOBAL DATA SYMBOLS: SORTED BY DATA PAGE
@@ -257,28 +257,29 @@ page  address   name
 abs   ffffffff  .text                           
 0     00008e29  C$$EXIT                         
 0     00008b10  FS$$DIV                         
-0     000090bd  U$$DIV                          
-0     000090c2  U$$MOD                          
-0     000085c0  _ADC_init2                      
+0     000090c1  U$$DIV                          
+0     000090c6  U$$MOD                          
+0     000085c3  _ADC_init2                      
 0     00008e52  _ADC_setOffsetTrimAll           
-0     0000869a  _ASYSCTL_init2                  
-0     00008593  _Board_init2                    
+0     0000869d  _ASYSCTL_init2                  
+0     00008581  _Board_init2                    
 0     00008892  _Device_enableAllPeripherals    
 0     00008865  _Device_init                    
 0     00008972  _Device_initGPIO                
 1     0000a9de  _EPWM_TIMER_TBPRD               
-0     000085bf  _EPWM_init2                     
+0     000085ae  _EPWM_Trigger_init              
+0     000085ad  _EPWM_init2                     
 1     0000a9f6  _Example_Fail                   
 1     0000a9f4  _Example_PassCount              
 0     00008d52  _GPIO_setAnalogMode             
 0     00008df8  _GPIO_setDirectionMode          
 0     00008cc3  _GPIO_setPadConfig              
 0     00008d8d  _GPIO_setPinConfig              
-0     000086a3  _INTERRUPT_init2                
+0     000086a6  _INTERRUPT_init2                
 0     00008dc4  _Interrupt_enable               
 0     00008d15  _Interrupt_initModule           
 0     00008f2c  _Interrupt_initVectorTable      
-0     000085a0  _PinMux_init2                   
+0     0000858e  _PinMux_init2                   
 0     0000016f  _SysCtl_delay                   
 0     00008a50  _SysCtl_isPLLValid              
 0     00008c12  _SysCtl_selectOscSource         
@@ -300,20 +301,20 @@ abs   ffffffff  ___c_args__
 abs   ffffffff  ___etext__                      
 abs   ffffffff  ___pinit__                      
 abs   ffffffff  ___text__                       
-0     00009068  __args_main                     
+0     000087ed  __args_main                     
 1     0000a9f8  __lock                          
-0     000090d0  __nop                           
-0     000090cc  __register_lock                 
-0     000090c8  __register_unlock               
+0     000090d4  __nop                           
+0     000090d0  __register_lock                 
+0     000090cc  __register_unlock               
 1     00000400  __stack                         
-0     000090df  __system_post_cinit             
-0     000090dd  __system_pre_init               
+0     000087ff  __system_post_cinit             
+0     000090e1  __system_pre_init               
 1     0000a9fa  __unlock                        
 0     00008e29  _abort                          
-0     0000873c  _adcCurrent                     
-0     0000878a  _adcRef                         
+0     0000873f  _adcCurrent                     
+0     0000878d  _adcRef                         
 1     0000a9d0  _adcResult                      
-0     000086c8  _adcVoltage                     
+0     000086cb  _adcVoltage                     
 0     00008c6d  _c_int00                        
 1     0000a9d3  _c_meas                         
 1     0000a9d5  _c_overflow                     
@@ -324,14 +325,14 @@ abs   ffffffff  ___text__
 1     0000a9e0  _duty_cycle                     
 0     00008e2b  _exit                           
 1     0000a9d1  _fed_set                        
-0     00008290  _main                           
+0     000081ec  _main                           
 0     00008f67  _memcpy                         
 1     0000a9da  _r_meas                         
 1     0000a9dc  _r_overflow                     
 1     0000a9db  _r_read                         
 1     0000a9d2  _red_set                        
 1     0000a9e6  _ref                            
-0     0000847c  _setupEPWMOutputSwap            
+0     000083c6  _setupEPWMOutputSwap            
 1     0000a9ee  _v_avg                          
 1     0000a9d9  _v_count                        
 1     0000a9d6  _v_meas                         
@@ -353,17 +354,20 @@ page  address   name
 0     000000f6  ___cinit__                      
 0     000000f6  cinit                           
 0     0000016f  _SysCtl_delay                   
-0     00008290  _main                           
-0     0000847c  _setupEPWMOutputSwap            
-0     00008593  _Board_init2                    
-0     000085a0  _PinMux_init2                   
-0     000085bf  _EPWM_init2                     
-0     000085c0  _ADC_init2                      
-0     0000869a  _ASYSCTL_init2                  
-0     000086a3  _INTERRUPT_init2                
-0     000086c8  _adcVoltage                     
-0     0000873c  _adcCurrent                     
-0     0000878a  _adcRef                         
+0     000081ec  _main                           
+0     000083c6  _setupEPWMOutputSwap            
+0     00008581  _Board_init2                    
+0     0000858e  _PinMux_init2                   
+0     000085ad  _EPWM_init2                     
+0     000085ae  _EPWM_Trigger_init              
+0     000085c3  _ADC_init2                      
+0     0000869d  _ASYSCTL_init2                  
+0     000086a6  _INTERRUPT_init2                
+0     000086cb  _adcVoltage                     
+0     0000873f  _adcCurrent                     
+0     0000878d  _adcRef                         
+0     000087ed  __args_main                     
+0     000087ff  __system_post_cinit             
 0     00008865  _Device_init                    
 0     00008892  _Device_enableAllPeripherals    
 0     00008972  _Device_initGPIO                
@@ -388,14 +392,12 @@ page  address   name
 0     00008f2c  _Interrupt_initVectorTable      
 0     00008f67  _memcpy                         
 0     00008f84  _SysCtl_selectXTALSingleEnded   
-0     00009068  __args_main                     
-0     000090bd  U$$DIV                          
-0     000090c2  U$$MOD                          
-0     000090c8  __register_unlock               
-0     000090cc  __register_lock                 
-0     000090d0  __nop                           
-0     000090dd  __system_pre_init               
-0     000090df  __system_post_cinit             
+0     000090c1  U$$DIV                          
+0     000090c6  U$$MOD                          
+0     000090cc  __register_unlock               
+0     000090d0  __register_lock                 
+0     000090d4  __nop                           
+0     000090e1  __system_pre_init               
 1     00000400  __stack                         
 1     000007f8  __STACK_END                     
 1     0000a9d0  _adcResult                      
@@ -439,4 +441,4 @@ abs   ffffffff  binit
 abs   ffffffff  etext                           
 abs   ffffffff  pinit                           
 
-[89 symbols]
+[90 symbols]

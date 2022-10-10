@@ -49,7 +49,7 @@ extern __interrupt void adcVoltage(void);
 extern __interrupt void adcRef(void);
 
 
-
+void    EPWM_Trigger_init();
 void    ADC_init2();
 void    ASYSCTL_init2();
 void    INTERRUPT_init2();

@@ -46,6 +46,15 @@ void EPWM_init2(){
     //myEPWM5 initialization
     //myEPWM6 initialization
 }
+void EPWM_Trigger_init(){
+    EPWM_disableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
+    //megmondjuk hogy ezt fogja triggerelni, meghozza mindig amikor valamekkora a dolog
+    EPWM_setADCTriggerSource(EPWM1_BASE, EPWM_SOC_A, EPWM_SOC_TBCTR_ZERO_OR_PERIOD);
+    //elvileg egyszer mukodik emiatt, de nem merem baszogatni
+    EPWM_setADCTriggerEventPrescale(EPWM1_BASE, EPWM_SOC_A, 1);
+
+}
+
 void ADC_init2(){
 
     ADC_setOffsetTrimAll(ADC_REFERENCE_INTERNAL,ADC_REFERENCE_3_3V); //3.3 internal volt ref
