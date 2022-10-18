@@ -35,7 +35,7 @@
 #define ADC_REF_RESULT ADCCRESULT_BASE
 
 
-// Interrupt Setings for INT_myADC0_1
+// interrupt 1
 #define INT_ADC_CURR_1 INT_ADCA1
 #define INT_ADC_CURR_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
 #define INT_ADC_VOLTAGE_1 INT_ADCB1
@@ -43,11 +43,23 @@
 #define INT_ADC_REF_1 INT_ADCC1
 #define INT_REF_1_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP1
 
+//interrupt 2
+#define INT_ADC_CURR_2 INT_ADCA2
+#define INT_ADC_CURR_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP2
+#define INT_ADC_VOLTAGE_2 INT_ADCB2
+#define INT_VOLTAGE_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP2
+#define INT_ADC_REF_2 INT_ADCC2
+#define INT_REF_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP2
 
-extern __interrupt void adcCurrent(void);
-extern __interrupt void adcVoltage(void);
-extern __interrupt void adcRef(void);
 
+
+extern __interrupt void adcCurrent1(void);
+extern __interrupt void adcVoltage1(void);
+extern __interrupt void adcRef1(void);
+
+extern __interrupt void adcCurrent2(void);
+extern __interrupt void adcVoltage2(void);
+extern __interrupt void adcRef2(void);
 
 void    EPWM_Trigger_init();
 void    ADC_init2();
