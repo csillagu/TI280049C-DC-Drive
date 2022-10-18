@@ -13,7 +13,7 @@ typedef enum{
 }DRIVE_TYPE;
 
 uint32_t EPWM_TIMER_TBPRD = 2500UL;
-uint32_t duty_cycle=50; //0...100
+float32_t duty_cycle=10; //0...100
 uint16_t adcResult=0;
 uint16_t fed_set=110;
 uint16_t red_set=110;
@@ -22,6 +22,10 @@ uint16_t c_meas=0;
 uint16_t c_read=0;
 uint16_t c_overflow=0;
 float32_t current=0;
+float32_t c_avgt[5]={0};
+float32_t c_avg=0;
+uint16_t c_count=0;
+
 
 uint16_t v_meas=0;
 uint16_t v_read=1;
@@ -35,6 +39,8 @@ uint16_t r_read=0;
 uint16_t r_overflow=0;
 float32_t ref=0.0;
 
+float32_t i_ba=0; //alapjel
+uint16_t cont=0; //szabalyozo mod eng
 
 
 
@@ -51,11 +57,17 @@ void setupEPWMOutputSwap(uint32_t base);
 __interrupt void adcRef(void);
 __interrupt void adcCurrent(void);
 __interrupt void adcVoltage(void);
+void syncEpwm();
+
 
 void main(void)
 {
+    float ik1=0;
+    float uk1=0;
+
+
     uint16_t EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
-    uint32_t duty_cycle_old=40;
+    float32_t duty_cycle_old=0;
     //
     // Initialize device clock and peripherals
     //
@@ -156,7 +168,7 @@ void main(void)
 
     EPWM_setTimeBasePeriod(myEPWM4_BASE, EPWM_TIMER_TBPRD); //up/down count
     EPWM_setPhaseShift(myEPWM4_BASE, 0U);  //?
-    EPWM_setTimeBaseCounter(myEPWM4_BASE, EPWM_TIMER_TBPRD);  // honnan indul?
+    EPWM_setTimeBaseCounter(myEPWM4_BASE, 0U);  // honnan indul?
     EPWM_setTimeBaseCounterMode(myEPWM4_BASE, EPWM_COUNTER_MODE_UP_DOWN); // fel/le szamoljon
     EPWM_disablePhaseShiftLoad(myEPWM4_BASE);
 
@@ -184,7 +196,20 @@ void main(void)
     // Set actions
     //
     // mi tortenjen amikor a kulonbozo compare eventek bekovetkeznek
+
+    EPWM_setActionQualifierAction(myEPWM4_BASE, // mi tortenjen amikor a kulonbozo compare eventek bekovetkeznek
+                                     EPWM_AQ_OUTPUT_B,
+                                     EPWM_AQ_OUTPUT_HIGH,
+                                     EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
     EPWM_setActionQualifierAction(myEPWM4_BASE,
+                                     EPWM_AQ_OUTPUT_B,
+                                     EPWM_AQ_OUTPUT_LOW,
+                                     EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+    EPWM_setActionQualifierAction(myEPWM4_BASE,
+                                     EPWM_AQ_OUTPUT_B,
+                                     EPWM_AQ_OUTPUT_HIGH,
+                                     EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+    /*EPWM_setActionQualifierAction(myEPWM4_BASE,
                                   EPWM_AQ_OUTPUT_A,
                                   EPWM_AQ_OUTPUT_LOW,
                                   EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
@@ -195,11 +220,11 @@ void main(void)
     EPWM_setActionQualifierAction(myEPWM4_BASE,
                                   EPWM_AQ_OUTPUT_A,
                                   EPWM_AQ_OUTPUT_LOW,
-                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_DOWN_CMPA);*/
 
-    EPWM_setRisingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMA); // ez alapjan lesz delay mostantol
+    EPWM_setRisingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMB); // ez alapjan lesz delay mostantol
 
-    EPWM_setFallingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMA); // same
+    EPWM_setFallingEdgeDeadBandDelayInput(myEPWM4_BASE, EPWM_DB_INPUT_EPWMB); // same
 
     EPWM_setFallingEdgeDelayCount(myEPWM4_BASE, fed_set); // eddig szamol el, amig delayeli a váltást
     EPWM_setRisingEdgeDelayCount(myEPWM4_BASE, red_set); // szintén csak felfutóélnéls
@@ -209,8 +234,8 @@ void main(void)
     EPWM_setDeadBandDelayPolarity(myEPWM4_BASE, EPWM_DB_RED, EPWM_DB_POLARITY_ACTIVE_HIGH); // kivonja, vagy hozzaadja a szamolashoz a deadbandet (?)
     EPWM_setDeadBandDelayPolarity(myEPWM4_BASE, EPWM_DB_FED, EPWM_DB_POLARITY_ACTIVE_LOW); //?
 
-    EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_A, false);
-    EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_B, false);
+    EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_A, true);
+    EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_B, true);
 
     EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
     EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_FED, true); //?
@@ -225,18 +250,18 @@ void main(void)
     EPWM_enableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
     SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC); // ráengedjük a clockot, ilyenkor kezd el működni
 
+    //syncEpwm();
 
-    //EPWM SYNC -> mindezt az AQ előtt kéne
-    //EPWM_setCountModeAfterSync merre számoljon sync után (ugyanaz vagy fordítva a jó?
-    //EPWM_forceSyncPulse ez elv a phasere állítja be
-    //EPWM_setSyncOutPulseMode automatikusan lehet synceltetni, ha ez nem kell, elv akkoris kell valamit beallitani
-    //
+
+
 
     for(;;)
     {
         NOP;
        // DEVICE_DELAY_US(10000000);
         if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
+            if(duty_cycle>100)
+                duty_cycle=duty_cycle_old; /// veszmegoldas tul nagy fesz ellen
             duty_cycle_old=duty_cycle;
             switch(drive){
             case DRIVE_TYPE_UNIPOLAR_PLUS:
@@ -250,14 +275,16 @@ void main(void)
                 EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
                 break;
             case DRIVE_TYPE_BIPOLAR:
-                //TODO itt nem ugyanazok a duty cyclek kellenek? elvileg be van állítva?
+                //TODO itt nem ugyanazok a duty cyclek kellenek? elvileg be van állítva? DONE
 
                 EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
-                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, (100-duty_cycle)*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
-
+                EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100);//--------->>> 0 lesz a kimeno fesz ott
+                //syncEpwm();
                 break;
             }
         }
+
+
         if(EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
             EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
             EPWM_setTimeBasePeriod(myEPWM1_BASE, EPWM_TIMER_TBPRD);
@@ -266,16 +293,38 @@ void main(void)
         if(c_read==1&&r_read==1&&v_read==1){
             c_read=0;
             r_read=0;
-
-            current=((int16_t)c_meas-(int16_t)r_meas)*0.0322266+0.1;//magic constant
-            //current=c_meas*1.0/4096*130.4348-ref/0.0253;
             v_read=0;
+            current=((int16_t)c_meas-(int16_t)r_meas)*0.0322266+0.1;//magic constant
+            c_avgt[(c_count+1)%5]=current;
+            c_count++;
+            c_avg= (c_avgt[0]+c_avgt[1]+c_avgt[2]+c_avgt[3]+c_avgt[4])*1.0/5.0; // test for identification
+
+            if(cont){
+                float32_t ih=i_ba-current;
+                duty_cycle=(ih*100-37.5*ik1)/25.0+uk1;
+                ik1=ih;
+                uk1=duty_cycle;
+            }
+
+            //current=c_meas*1.0/4096*130.4348-ref/0.0253;
+
             //voltage=((v_avg[0]+v_avg[1]+v_avg[2]+v_avg[3]+v_avg[4])*1.0*3.3-ref)/40.960;
             //itt minden megvan, mehet a beavatkozojel szamolas
 
         }
      }
 
+}
+    //EPWM SYNC -> mindezt az AQ előtt kéne
+    //EPWM_setCountModeAfterSync merre számoljon sync után (ugyanaz vagy fordítva a jó?
+    //EPWM_forceSyncPulse ez elv a phasere állítja be
+    //EPWM_setSyncOutPulseMode automatikusan lehet synceltetni, ha ez nem kell, elv akkoris kell valamit beallitani
+    //
+void syncEpwm(){
+    EPWM_setCountModeAfterSync(myEPWM1_BASE, EPWM_COUNT_MODE_UP_AFTER_SYNC);
+    EPWM_setCountModeAfterSync(myEPWM4_BASE, EPWM_COUNT_MODE_DOWN_AFTER_SYNC);
+    EPWM_forceSyncPulse(myEPWM1_BASE);
+    EPWM_forceSyncPulse(myEPWM1_BASE);
 }
 
 __interrupt void adcVoltage(void){
