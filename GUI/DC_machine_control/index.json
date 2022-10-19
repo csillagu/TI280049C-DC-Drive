@@ -1,0 +1,39 @@
+{
+    "widgetBindings": [
+        {
+            "widgetId": "slider",
+            "serverBindName": "widget.xds_model_program.duty_cycle",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "textbox_3",
+            "serverBindName": "widget.xds_model_program.c_avg",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "button",
+            "serverBindName": "widget.xds_model_program.cont",
+            "propertyName": "checked"
+        },
+        {
+            "widgetId": "currennt",
+            "serverBindName": "widget.xds_model_program.i_ba",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "temperaturegraph",
+            "serverBindName": "widget.xds_model_program.current",
+            "propertyName": "temperature"
+        },
+        {
+            "widgetId": "svggauge",
+            "serverBindName": "widget.xds_model_program.current",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "button_1",
+            "serverBindName": "widget.xds_model_program.cont",
+            "propertyName": "checked"
+        }
+    ]
+}
