@@ -77,6 +77,7 @@ void ADC_init2(){
     DEVICE_DELAY_US(5000);
     ADC_disableBurstMode(ADC_CURRENT); //?
     ADC_setSOCPriority(ADC_CURRENT, ADC_PRI_ALL_ROUND_ROBIN); // ha tob soc akarja hasznalni az adcA-t, akkor melyikkel kezdjuk
+
     // tbprd=zero interrupt
     ADC_setupSOC(ADC_CURRENT, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN5, 50U); //hozzakapcsoljuk az adc6base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
     ADC_setInterruptSOCTrigger(ADC_CURRENT, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE); // az interrupt utan ne triggetelodjon mas
@@ -100,18 +101,17 @@ void ADC_init2(){
     ADC_setInterruptPulseMode(ADC_VOLTAGE, ADC_PULSE_END_OF_CONV);
     ADC_enableConverter(ADC_VOLTAGE);
     DEVICE_DELAY_US(5000);
-
     ADC_disableBurstMode(ADC_VOLTAGE);
     ADC_setSOCPriority(ADC_VOLTAGE, ADC_PRI_ALL_ROUND_ROBIN);
 
+    //tbprd=zero interrupt
     ADC_setupSOC(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN0, 50U); //??????? tesztelni kell hogy jo e
-
     ADC_setInterruptSOCTrigger(ADC_VOLTAGE, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE); // az adcint1 utan triggerelodjon ez a cucc
+
     ADC_setInterruptSource(ADC_VOLTAGE, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);
     ADC_enableInterrupt(ADC_VOLTAGE, ADC_INT_NUMBER1);
     ADC_clearInterruptStatus(ADC_VOLTAGE, ADC_INT_NUMBER1);
     ADC_disableContinuousMode(ADC_VOLTAGE, ADC_INT_NUMBER1);
-
     // tbprd=period interrupt:
     ADC_setupSOC(ADC_VOLTAGE, ADC_SOC_NUMBER1, ADC_TRIGGER_EPWM1_SOCB, ADC_CH_ADCIN0, 50U); //hozzakapcsoljuk az adc6base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
     ADC_setInterruptSOCTrigger(ADC_VOLTAGE, ADC_SOC_NUMBER1, ADC_INT_SOC_TRIGGER_NONE); // az interrupt utan ne triggetelodjon mas
@@ -120,6 +120,7 @@ void ADC_init2(){
     ADC_enableInterrupt(ADC_VOLTAGE, ADC_INT_NUMBER2);
     ADC_clearInterruptStatus(ADC_VOLTAGE, ADC_INT_NUMBER2);
     ADC_disableContinuousMode(ADC_VOLTAGE, ADC_INT_NUMBER2);
+
     // referencia
     ADC_setPrescaler(ADC_REF, ADC_CLK_DIV_2_0);
     ADC_setInterruptPulseMode(ADC_REF, ADC_PULSE_END_OF_CONV);
@@ -132,12 +133,12 @@ void ADC_init2(){
     ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER0, ADC_TRIGGER_EPWM1_SOCA, ADC_CH_ADCIN2, 50U); //??????? tesztelni kell hogy jo e
 
     ADC_setInterruptSOCTrigger(ADC_REF, ADC_SOC_NUMBER0, ADC_INT_SOC_TRIGGER_NONE);
-    ADC_setInterruptSource(ADC_REF, ADC_INT_NUMBER1, ADC_SOC_NUMBER0);
+    ADC_setInterruptSource(ADC_REF, ADC_INT_NUMBER2, ADC_SOC_NUMBER0);
     ADC_enableInterrupt(ADC_REF, ADC_INT_NUMBER1);
     ADC_clearInterruptStatus(ADC_REF, ADC_INT_NUMBER1);
     ADC_disableContinuousMode(ADC_REF, ADC_INT_NUMBER1); //intek helyett, a legvegen kene egy darb nagy int
     // interrupt2
-    ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER1, ADC_TRIGGER_EPWM1_SOCB, ADC_CH_ADCIN0, 50U); //hozzakapcsoljuk az adc6base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
+    ADC_setupSOC(ADC_REF, ADC_SOC_NUMBER1, ADC_TRIGGER_EPWM1_SOCB, ADC_CH_ADCIN2, 50U); //hozzakapcsoljuk az adc6base-hez a 0.soc-ot, es epwm trigger, meg a 0. port
     ADC_setInterruptSOCTrigger(ADC_REF, ADC_SOC_NUMBER1, ADC_INT_SOC_TRIGGER_NONE); // az interrupt utan ne triggetelodjon mas
 
     ADC_setInterruptSource(ADC_REF, ADC_INT_NUMBER2, ADC_SOC_NUMBER1);

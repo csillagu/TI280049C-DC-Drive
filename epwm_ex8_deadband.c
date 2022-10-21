@@ -11,6 +11,9 @@ typedef enum{
     DRIVE_TYPE_UNIPOLAR_MINUS,
     DRIVE_TYPE_BIPOLAR
 }DRIVE_TYPE;
+//TEST
+
+//END
 
 uint32_t EPWM_TIMER_TBPRD = 2500UL;
 float32_t duty_cycle=10; //0...100
@@ -98,8 +101,8 @@ void setupEpwm2(uint32_t EPWM_TIMER_TBPRD, uint16_t fed_set, uint16_t red_set);
 
 void main(void)
 {
-    float ik1=0;
-    float uk1=0;
+    float32_t ik1=0;
+    float32_t uk1=0;
 
 
     uint16_t EPWM_TIMER_TBPRD_old=EPWM_TIMER_TBPRD;
@@ -148,6 +151,7 @@ void main(void)
     Interrupt_enable(INT_ADCA1);
     Interrupt_enable(INT_ADCB1);
     Interrupt_enable(INT_ADCC1);
+
     Interrupt_enable(INT_ADCA2);
     Interrupt_enable(INT_ADCB2);
     Interrupt_enable(INT_ADCC2);
@@ -157,7 +161,7 @@ void main(void)
     EPWM_enableADCTrigger(EPWM1_BASE, EPWM_SOC_A);
     EPWM_enableADCTrigger(EPWM1_BASE, EPWM_SOC_B);
 
-    SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC); // ráengedjük a clockot, ilyenkor kezd el működni
+    SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC); // start pwm clock
 
     //TODO kell ez?
     //syncEpwm();
@@ -176,7 +180,6 @@ void main(void)
             switch(drive){
             case DRIVE_TYPE_UNIPOLAR_PLUS:
                 //TODO - plusznal es minusznal is hasnoloan mukodjon a duty cycle noveli-csokkenti -lenyeg, hogy tudjuk hogy mi a fasz van.
-
                 EPWM_setCounterCompareValue(myEPWM1_BASE, EPWM_COUNTER_COMPARE_A, duty_cycle*EPWM_TIMER_TBPRD/100); //beállíthatunk két comparet, meg kell nezni hogy megy
                 EPWM_setCounterCompareValue(myEPWM4_BASE, EPWM_COUNTER_COMPARE_A, EPWM_TIMER_TBPRD);//--------->>> 0 lesz a kimeno fesz ott
                 break;
@@ -210,7 +213,6 @@ void main(void)
             current_at1=((int16_t)c_meas_at1-(int16_t)r_meas_at1)*0.0322266+0.1;//magic constant
             c_avgt[(c_count+1)%5]=current_at1;
             c_count++;
-            c_avg= (c_avgt[0]+c_avgt[1]+c_avgt[2]+c_avgt[3]+c_avgt[4])*1.0/5.0; // test for identification
 
             //VOLTAGE related values
             //TODO voltage is definitely not good like this (amplifiers amplification needs to be added)
@@ -227,9 +229,9 @@ void main(void)
             }
         if(c_read_at2==1&&r_read_at2==1&&v_read_at2==1){
             //reset SET flags
-            c_read_at2=0;
-            r_read_at2=0;
-            v_read_at2=0;
+            //c_read_at2=0;
+            //r_read_at2=0;
+            //v_read_at2=0;
             //REFERENCE related values
             float32_t ref_at2=r_meas_at2*1.0/4096.0*3.3;
             //CURRENT related values
@@ -237,6 +239,7 @@ void main(void)
             c_avgt[(c_count+1)%5]=current_at2;
             c_count++;
             c_avg= (c_avgt[0]+c_avgt[1]+c_avgt[2]+c_avgt[3]+c_avgt[4])*1.0/5.0; // test for identification
+            ref=ref_at2;
 
             current=(current_at2+current_at1)/2.0;
 
@@ -250,7 +253,7 @@ void main(void)
             //CONTROLLER
             if(cont){
                float32_t ie=i_ba-current; //current error
-               duty_cycle=Ap*(ie-0.25*ik1)/25.0+uk1;
+               duty_cycle=Ap*(ie+4*ik1)/25.0+uk1;
                ik1=ie;
                uk1=duty_cycle;
             }
