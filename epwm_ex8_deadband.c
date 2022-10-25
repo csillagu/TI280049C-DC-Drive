@@ -12,7 +12,7 @@ typedef enum{
     DRIVE_TYPE_BIPOLAR
 }DRIVE_TYPE;
 //TEST
-
+long long dc_of=0;
 //END
 
 uint32_t EPWM_TIMER_TBPRD = 2500UL;
@@ -71,8 +71,8 @@ float32_t ref=0.0;
 //controller
 float32_t i_ba=0; //setpoint (alapjel)
 uint16_t cont=0; //enable controller mode
-float32_t Ap=5; //proportional term
-
+float32_t Ap=25; //proportional term
+float32_t u_o=0;
 
 
 DRIVE_TYPE drive=DRIVE_TYPE_UNIPOLAR_PLUS;
@@ -174,8 +174,10 @@ void main(void)
         NOP;
         //change of duty cycle or timer period
         if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
-            if(duty_cycle>100)
+            if(duty_cycle>100){
+                dc_of++;
                 duty_cycle=duty_cycle_old; /// veszmegoldas tul nagy fesz ellen
+            }
             duty_cycle_old=duty_cycle;
             switch(drive){
             case DRIVE_TYPE_UNIPOLAR_PLUS:
@@ -253,9 +255,12 @@ void main(void)
             //CONTROLLER
             if(cont){
                float32_t ie=i_ba-current; //current error
-               duty_cycle=Ap*(ie+4*ik1)/25.0+uk1;
+               u_o=Ap*(ie-0.9695*ik1)+uk1; //*100 maybe?
+               //if(u_o>100)
+                 //  u_o=uk1;
                ik1=ie;
-               uk1=duty_cycle;
+               uk1=u_o;
+               duty_cycle=u_o/25*100;
             }
         }
 
