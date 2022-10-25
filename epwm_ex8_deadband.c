@@ -16,7 +16,9 @@ long long dc_of=0;
 //END
 
 uint32_t EPWM_TIMER_TBPRD = 2500UL;
-float32_t duty_cycle=10; //0...100
+float32_t duty_cycle=20; //0...100
+#define DUTY_MAX 90
+#define V_MAX 25
 uint16_t adcResult=0;
 uint16_t fed_set=110;
 uint16_t red_set=110;
@@ -174,7 +176,7 @@ void main(void)
         NOP;
         //change of duty cycle or timer period
         if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
-            if(duty_cycle>100){
+            if(duty_cycle>DUTY_MAX){
                 dc_of++;
                 duty_cycle=duty_cycle_old; /// veszmegoldas tul nagy fesz ellen
             }
@@ -259,8 +261,15 @@ void main(void)
                //if(u_o>100)
                  //  u_o=uk1;
                ik1=ie;
+               //integrator max output
+               if(u_o>V_MAX*DUTY_MAX/100.0){ //actual maximal voltage
+                   u_o=V_MAX*DUTY_MAX/100.0;
+                   duty_cycle=DUTY_MAX;
+               }else{
+                   duty_cycle=u_o/V_MAX*100;
+               }
                uk1=u_o;
-               duty_cycle=u_o/25*100;
+
             }
         }
 
