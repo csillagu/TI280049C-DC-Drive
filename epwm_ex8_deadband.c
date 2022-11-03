@@ -15,8 +15,8 @@ typedef enum{
 long long dc_of=0;
 //END
 
-uint32_t EPWM_TIMER_TBPRD = 2500UL;
-float32_t duty_cycle=20; //0...100
+uint32_t EPWM_TIMER_TBPRD = 1250UL;
+float32_t duty_cycle=50; //0...100
 #define DUTY_MAX 90
 #define V_MAX 25
 uint16_t adcResult=0;
@@ -73,11 +73,18 @@ float32_t ref=0.0;
 //controller
 float32_t i_ba=0; //setpoint (alapjel)
 uint16_t cont=0; //enable controller mode
-float32_t Ap=25; //proportional term
+float32_t Ap=0.9914; //proportional term
+float32_t K_ti=0.9184;
+float32_t integ=1;
 float32_t u_o=0;
+int16_t ibamult=1;
 
+//STATE CONTROLL
+typedef enum {STOP=0, START=1} STATE;
+STATE state=0;
+STATE state_old=1;
 
-DRIVE_TYPE drive=DRIVE_TYPE_UNIPOLAR_PLUS;
+DRIVE_TYPE drive=DRIVE_TYPE_BIPOLAR;//_PLUS;
 //
 // Function Prototypes
 //
@@ -98,7 +105,7 @@ void syncEpwm();
 
 void setupEpwm1(uint32_t EPWM_TIMER_TBPRD, float32_t duty_cycle, uint16_t fed_set, uint16_t red_set);
 void setupEpwm2(uint32_t EPWM_TIMER_TBPRD, uint16_t fed_set, uint16_t red_set);
-
+uint16_t duty_null();
 
 
 void main(void)
@@ -175,8 +182,24 @@ void main(void)
     {
         NOP;
         //change of duty cycle or timer period
-        if(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD){
-            if(duty_cycle>DUTY_MAX){
+
+        if(state!=state_old){
+            state_old=state;
+            if(state==STOP){
+                GPIO_writePin(GPIO_SD1, 1);
+                GPIO_writePin(GPIO_SD2, 1);
+
+            }
+            if(state==START){
+                GPIO_writePin(GPIO_SD1, 0);
+                GPIO_writePin(GPIO_SD2, 0);
+
+                duty_cycle=duty_null();
+            }
+        }
+
+        if(state&&(duty_cycle!=duty_cycle_old||EPWM_TIMER_TBPRD_old!=EPWM_TIMER_TBPRD)){
+            if(duty_cycle>100){
                 dc_of++;
                 duty_cycle=duty_cycle_old; /// veszmegoldas tul nagy fesz ellen
             }
@@ -247,6 +270,12 @@ void main(void)
 
             current=(current_at2+current_at1)/2.0;
 
+            //SAFETY
+            if(current>20){
+                state=STOP;
+            }
+
+
             //VOLTAGE related values
             //TODO voltage is definitely not good like this (amplifiers amplification needs to be added)
             float32_t voltage_at2=(v_meas_at2*1.0*3.3-ref_at2)/4096;
@@ -255,18 +284,39 @@ void main(void)
             v_avg= (v_avgt[0]+v_avgt[1]+v_avgt[2]+v_avgt[3]+v_avgt[4])*1.0/6206.06061; // test for identification
             voltage=(voltage_at2+voltage_at1)/2.0; //unused
             //CONTROLLER
-            if(cont){
-               float32_t ie=i_ba-current; //current error
-               u_o=Ap*(ie-0.9695*ik1)+uk1; //*100 maybe?
+            if(cont&&state){
+               float32_t ie=i_ba*ibamult-current; //current error
+               u_o=Ap*(ie-K_ti*ik1)+uk1*integ; //*100 maybe?
                //if(u_o>100)
                  //  u_o=uk1;
                ik1=ie;
+
+               float32_t umax=0;
+               float32_t umin=0;
+
                //integrator max output
-               if(u_o>V_MAX*DUTY_MAX/100.0){ //actual maximal voltage
-                   u_o=V_MAX*DUTY_MAX/100.0;
-                   duty_cycle=DUTY_MAX;
-               }else{
+               if(drive==DRIVE_TYPE_UNIPOLAR_PLUS){
                    duty_cycle=u_o/V_MAX*100;
+                   umax=V_MAX*DUTY_MAX/100.0;
+                   umin=0;
+               }else if(drive==DRIVE_TYPE_BIPOLAR){
+                   duty_cycle=u_o/V_MAX*100+50;
+                   umax=V_MAX*DUTY_MAX/100.0/2;
+                   umin=-V_MAX*DUTY_MAX/100.0/2;
+               }
+
+
+               if(duty_cycle>DUTY_MAX){
+                   duty_cycle=DUTY_MAX;
+                   u_o=umax;
+                   dc_of++;
+
+               }
+               if(duty_cycle<0){
+                   duty_cycle=0;
+                   u_o=umin;
+                   dc_of++;
+
                }
                uk1=u_o;
 
@@ -549,4 +599,8 @@ void setupEpwm2(uint32_t EPWM_TIMER_TBPRD, uint16_t fed_set, uint16_t red_set)
     EPWM_setDeadBandOutputSwapMode(myEPWM4_BASE, EPWM_DB_OUTPUT_B, true);
     EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_RED, true); // gyakorlatilag elmenti amit beallitottunk eddig (?)
     EPWM_setDeadBandDelayMode(myEPWM4_BASE, EPWM_DB_FED, true); //?
+}
+
+uint16_t duty_null(){
+    return (drive==DRIVE_TYPE_BIPOLAR)?50:0;
 }

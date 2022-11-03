@@ -16,7 +16,7 @@ void Board_init2()
     ASYSCTL_init2();
     ADC_init2();
     INTERRUPT_init2();
-
+    GPIO_init2();
     EDIS;
 }
 
@@ -35,6 +35,28 @@ void PinMux_init2()
     GPIO_setPinConfig(GPIO_2_GPIO2);
     //SD2
     GPIO_setPinConfig(GPIO_3_GPIO3);
+
+}
+void GPIO_init2(){
+
+    // SD=1 is used to disable the drivers
+    GPIO_writePin(GPIO_SD1, 1); // must be done first according to spuri 859 point 4
+    GPIO_setDirectionMode(GPIO_SD1, GPIO_DIR_MODE_OUT);
+
+    GPIO_setPadConfig(GPIO_SD1, GPIO_PIN_TYPE_STD); //important at input
+    GPIO_setMasterCore(GPIO_SD1, GPIO_CORE_CPU1); //which core should handle the gpio
+    GPIO_setQualificationMode(GPIO_SD1, GPIO_QUAL_SYNC); //important at input
+
+
+
+    GPIO_writePin(GPIO_SD2, 1); // must be done first according to spuri 859 point 4
+    GPIO_setDirectionMode(GPIO_SD2, GPIO_DIR_MODE_OUT);
+
+    GPIO_setPadConfig(GPIO_SD2, GPIO_PIN_TYPE_STD); //important at input
+    GPIO_setMasterCore(GPIO_SD2, GPIO_CORE_CPU1); //which core should handle the gpio
+    GPIO_setQualificationMode(GPIO_SD2, GPIO_QUAL_SYNC); //important at input
+
+
 
 }
 

@@ -51,6 +51,8 @@
 #define INT_ADC_REF_2 INT_ADCC2
 #define INT_REF_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP10
 
+#define GPIO_SD1 2 //GPIO2 and GPIO3 theoretically
+#define GPIO_SD2 3
 
 
 extern __interrupt void adcCurrent1(void);
@@ -68,5 +70,5 @@ void    INTERRUPT_init2();
 void    Board_init2();
 void    EPWM_init2();
 void    PinMux_init2();
-
+void    GPIO_init2();
 #endif  // end of BOARD_H definition
