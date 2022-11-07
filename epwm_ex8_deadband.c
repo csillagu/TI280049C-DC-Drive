@@ -74,15 +74,15 @@ float32_t ref=0.0;
 float32_t i_ba=0; //setpoint (alapjel)
 uint16_t cont=0; //enable controller mode
 float32_t Ap=0.9914; //proportional term
-float32_t K_ti=0.9184;
+float32_t K_ti=0.9797;
 float32_t integ=1;
 float32_t u_o=0;
 int16_t ibamult=1;
 
 //STATE CONTROLL
 typedef enum {STOP=0, START=1} STATE;
-STATE state=0;
-STATE state_old=1;
+STATE state=STOP;
+STATE state_old=START;
 
 DRIVE_TYPE drive=DRIVE_TYPE_BIPOLAR;//_PLUS;
 //
@@ -172,9 +172,6 @@ void main(void)
 
     SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC); // start pwm clock
 
-    //TODO kell ez?
-    //syncEpwm();
-
 
 
 
@@ -190,7 +187,7 @@ void main(void)
                 GPIO_writePin(GPIO_SD2, 1);
 
             }
-            if(state==START){
+            if(state==START&&current<20){
                 GPIO_writePin(GPIO_SD1, 0);
                 GPIO_writePin(GPIO_SD2, 0);
 
@@ -237,18 +234,17 @@ void main(void)
             //REFERENCE related values
             ref_at1=r_meas_at1*1.0/4096.0*3.3;
             //CURRENT related values
-            current_at1=((int16_t)c_meas_at1-(int16_t)r_meas_at1)*0.0322266+0.1;//magic constant
-            c_avgt[(c_count+1)%5]=current_at1;
-            c_count++;
+            current_at1=((int16_t)c_meas_at1-(int16_t)r_meas_at1)*0.0322266;//magic constant
+
 
             //VOLTAGE related values
-            //TODO voltage is definitely not good like this (amplifiers amplification needs to be added)
-            voltage_at1=(v_meas_at1*1.0*3.3-ref_at1)/4096;
-            v_avgt[(v_count+1)%5]=v_meas_at1;
-            v_count++;
-            v_avg= (v_avgt[0]+v_avgt[1]+v_avgt[2]+v_avgt[3]+v_avgt[4])*1.0/6206.06061; // test for identification
+            voltage_at1=(v_meas_at1*1.0*3.3)/4096-ref_at1;
+            //v_avgt[(v_count+1)%5]=voltage_at1;
+            //v_count++;
+            //v_avg= (v_avgt[0]+v_avgt[1]+v_avgt[2]+v_avgt[3]+v_avgt[4])*1.0/6206.06061; // test for identification
             //CONTROLLER is in the other interrupt
 
+            //current=(c_meas*1.0/4096-ref*1.0/4096)*3.3*
             //current=c_meas*1.0/4096*130.4348-ref/0.0253;
 
             //voltage=((v_avg[0]+v_avg[1]+v_avg[2]+v_avg[3]+v_avg[4])*1.0*3.3-ref)/40.960;
@@ -262,14 +258,14 @@ void main(void)
             //REFERENCE related values
             float32_t ref_at2=r_meas_at2*1.0/4096.0*3.3;
             //CURRENT related values
-            float32_t current_at2=((int16_t)c_meas_at2-(int16_t)r_meas_at2)*0.0322266+0.1;//magic constant
-            c_avgt[(c_count+1)%5]=current_at2;
-            c_count++;
-            c_avg= (c_avgt[0]+c_avgt[1]+c_avgt[2]+c_avgt[3]+c_avgt[4])*1.0/5.0; // test for identification
+            float32_t current_at2=((int16_t)c_meas_at2-(int16_t)r_meas_at2)*0.0322266;//magic constant
+
             ref=ref_at2;
 
-            current=(current_at2+current_at1)/2.0;
-
+            current=((current_at2+current_at1)/2.0+0.3555)/1.0367; //correction from ident
+            c_avgt[(c_count+1)%5]=current;
+            c_count++;
+            c_avg= (c_avgt[0]+c_avgt[1]+c_avgt[2]+c_avgt[3]+c_avgt[4])*1.0/5.0; // test for identification
             //SAFETY
             if(current>20){
                 state=STOP;
@@ -278,11 +274,14 @@ void main(void)
 
             //VOLTAGE related values
             //TODO voltage is definitely not good like this (amplifiers amplification needs to be added)
-            float32_t voltage_at2=(v_meas_at2*1.0*3.3-ref_at2)/4096;
-            v_avgt[(v_count+1)%5]=voltage_at2;
+            float32_t voltage_at2=(v_meas_at2*1.0*3.3)/4096.0-ref_at2;
+
+            voltage=(voltage_at2+voltage_at1)/2.0*(-100.73)-0.7349;//corrected from ident
+
+            v_avgt[(v_count+1)%5]=voltage;
             v_count++;
-            v_avg= (v_avgt[0]+v_avgt[1]+v_avgt[2]+v_avgt[3]+v_avgt[4])*1.0/6206.06061; // test for identification
-            voltage=(voltage_at2+voltage_at1)/2.0; //unused
+            v_avg= (v_avgt[0]+v_avgt[1]+v_avgt[2]+v_avgt[3]+v_avgt[4])/5;
+
             //CONTROLLER
             if(cont&&state){
                float32_t ie=i_ba*ibamult-current; //current error
@@ -300,9 +299,10 @@ void main(void)
                    umax=V_MAX*DUTY_MAX/100.0;
                    umin=0;
                }else if(drive==DRIVE_TYPE_BIPOLAR){
-                   duty_cycle=u_o/V_MAX*100+50;
-                   umax=V_MAX*DUTY_MAX/100.0/2;
-                   umin=-V_MAX*DUTY_MAX/100.0/2;
+                   //TODO !!!! duty_cycle=u_o*50.0/V_MAX+50 és az umax umin is szar (+-25V kéne!!)
+                   duty_cycle=u_o/V_MAX*50+50;
+                   umax=V_MAX*DUTY_MAX/100.0;
+                   umin=-V_MAX*DUTY_MAX/100.0;
                }
 
 
