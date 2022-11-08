@@ -73,8 +73,8 @@ float32_t ref=0.0;
 //controller
 float32_t i_ba=0; //setpoint (alapjel)
 uint16_t cont=0; //enable controller mode
-float32_t Ap=0.9914; //proportional term
-float32_t K_ti=0.9797;
+float32_t Ap=1.333; //proportional term
+float32_t K_ti=0.9771;
 float32_t integ=1;
 float32_t u_o=0;
 int16_t ibamult=1;

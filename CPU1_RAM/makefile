@@ -149,7 +149,7 @@ all: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 epwm_ex8_deadband.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: C2000 Linker'
-	"D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu32 --tmu_support=tmu0 --vcu_support=vcu0 -Ooff --diag_suppress=10063 --diag_warning=225 --diag_wrap=off --display_error_number --abi=coffabi -z -m"epwm_ex8_deadband.map" --heap_size=0x200 --stack_size=0x3F8 --warn_sections -i"D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/lib" -i"D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="epwm_ex8_deadband_linkInfo.xml" --entry_point=code_start --rom_model -o "epwm_ex8_deadband.out" $(ORDERED_OBJS)
+	"D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu32 --tmu_support=tmu0 --vcu_support=vcu0 -Ooff --fp_mode=strict --diag_suppress=10063 --diag_warning=225 --diag_wrap=off --display_error_number --abi=coffabi -z -m"epwm_ex8_deadband.map" --heap_size=0x200 --stack_size=0x3F8 --warn_sections -i"D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/lib" -i"D:/Programs/ti/ccs/tools/compiler/ti-cgt-c2000_21.6.0.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="epwm_ex8_deadband_linkInfo.xml" --entry_point=code_start --rom_model -o "epwm_ex8_deadband.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
