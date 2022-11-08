@@ -18,11 +18,8 @@
 #define GPIO_PIN_EPWM6_B 11
 
 #define myEPWM1_BASE EPWM1_BASE
-#define myEPWM2_BASE EPWM2_BASE
-#define myEPWM3_BASE EPWM3_BASE
 #define myEPWM4_BASE EPWM4_BASE
-#define myEPWM5_BASE EPWM5_BASE
-#define myEPWM6_BASE EPWM6_BASE
+
 
 
 #define ADC_CURRENT ADCA_BASE
@@ -45,12 +42,14 @@
 
 //interrupt 2
 #define INT_ADC_CURR_2 INT_ADCA2
-#define INT_ADC_CURR_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP2
+#define INT_ADC_CURR_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP10
 #define INT_ADC_VOLTAGE_2 INT_ADCB2
-#define INT_VOLTAGE_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP2
+#define INT_VOLTAGE_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP10
 #define INT_ADC_REF_2 INT_ADCC2
-#define INT_REF_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP2
+#define INT_REF_2_INTERRUPT_ACK_GROUP INTERRUPT_ACK_GROUP10
 
+#define GPIO_SD1 2 //GPIO2 and GPIO3 theoretically
+#define GPIO_SD2 3
 
 
 extern __interrupt void adcCurrent1(void);
@@ -68,5 +67,5 @@ void    INTERRUPT_init2();
 void    Board_init2();
 void    EPWM_init2();
 void    PinMux_init2();
-
+void    GPIO_init2();
 #endif  // end of BOARD_H definition
