@@ -16,6 +16,7 @@
 <link rel="import" href="components/ti-widget-graphs/ti-widget-temperaturegraph.html">
 <link rel="import" href="components/ti-widget-svggauge/ti-widget-svggauge.html">
 <link rel="import" href="components/ti-widget-common/ti-widget-toggle-button.html">
+<link rel="import" href="components/ti-widget-common/ti-widget-label.html">
 
  
 
@@ -79,12 +80,19 @@
       <ti-widget-container auto-scroll id="viewport" layout horizontal wrap start-justified start pin class="viewport">
           <ti-widget-textbox id="textbox" value="Duty cycle"></ti-widget-textbox>
           <ti-widget-slider id="slider" labels="0,25,50,75,100"></ti-widget-slider>
-          <ti-widget-textbox id="textbox_2" value="Cavg:"></ti-widget-textbox>
+          <ti-widget-label id="label_2" label="C_avg:"></ti-widget-label>
           <ti-widget-textbox id="textbox_3"></ti-widget-textbox>
+          <ti-widget-label id="label_3" label="V_avg"></ti-widget-label>
+          <ti-widget-textbox id="textbox_4"></ti-widget-textbox>
+          <ti-widget-label id="label_1" label="U_o:"></ti-widget-label>
           <ti-widget-toggle-button id="button" label="Szabalyozo"></ti-widget-toggle-button>
           <ti-widget-textbox id="currennt"></ti-widget-textbox>
+          <ti-widget-toggle-button id="button_2" label="i_ba_adv"></ti-widget-toggle-button>
+          <ti-widget-label id="label_8" label="Ap:"></ti-widget-label>
+          <ti-widget-textbox id="textbox_1"></ti-widget-textbox>
+          <ti-widget-toggle-button id="button_3" label="Start"></ti-widget-toggle-button>
           <ti-widget-temperaturegraph id="temperaturegraph" target-temperature-scale="F" min-temp-f="-30" max-temp-f="30" min-temp-c="0" fixed-scale background-color="#FFFFFF" line-color="#00BBCC" seconds-between-ticks="3" num-values-to-plot="120"></ti-widget-temperaturegraph>
-          <ti-widget-svggauge id="svggauge" min-value="-20" max-value="20" show-odometer="true" face-color="#ffffff" needle-color="#cc0000" font-color="#000000" major-tick-style="LongTick" major-tick-color="#000000" num-ticks-per-unit="1" num-ticks-per-number-label="4" tick-color="#000000" odometer-color="#eaeaea" gauge-font-size-in-px="5" frame-color="#c0c0c0" title-font-size-in-px="6" odometer-font-size-in-px="5"></ti-widget-svggauge>
+          <ti-widget-svggauge id="svggauge" min-value="-25" max-value="25" show-odometer title-text="Current" face-color="#ffffff" needle-color="#cc0000" font-color="#000000" major-tick-style="LongTick" major-tick-color="#000000" num-ticks-per-unit="1" num-ticks-per-number-label="4" tick-color="#000000" odometer-color="#eaeaea" gauge-font-size-in-px="5" frame-color="#c0c0c0" title-font-size-in-px="6" odometer-font-size-in-px="5"></ti-widget-svggauge>
           <ti-widget-toggle-button id="button_1" label="Szabalyozo_check"></ti-widget-toggle-button>
       </ti-widget-container>
      <ti-tile-title id="ti_tile_title_container" title-text="Dashboard" pin  text-align="center">

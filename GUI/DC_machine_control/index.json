@@ -11,14 +11,34 @@
             "propertyName": "value"
         },
         {
+            "widgetId": "textbox_4",
+            "serverBindName": "widget.xds_model_program.v_avg",
+            "propertyName": "value"
+        },
+        {
             "widgetId": "button",
             "serverBindName": "widget.xds_model_program.cont",
             "propertyName": "checked"
         },
         {
             "widgetId": "currennt",
-            "serverBindName": "widget.xds_model_program.i_ba",
+            "serverBindName": "widget.xds_model_program.ibamult",
             "propertyName": "value"
+        },
+        {
+            "widgetId": "button_2",
+            "serverBindName": "widget.xds_model_program.i_ba",
+            "propertyName": "checked"
+        },
+        {
+            "widgetId": "textbox_1",
+            "serverBindName": "widget.xds_model_program.Ap",
+            "propertyName": "value"
+        },
+        {
+            "widgetId": "button_3",
+            "serverBindName": "widget.xds_model_program.state",
+            "propertyName": "checked"
         },
         {
             "widgetId": "temperaturegraph",
@@ -29,6 +49,11 @@
             "widgetId": "svggauge",
             "serverBindName": "widget.xds_model_program.current",
             "propertyName": "value"
+        },
+        {
+            "widgetId": "svggauge",
+            "serverBindName": "widget.xds_model_program.current",
+            "propertyName": "odometer"
         },
         {
             "widgetId": "button_1",
